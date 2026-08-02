@@ -1,0 +1,1255 @@
+<title>Simulador de Autômatos Finitos</title>
+<style>
+:root {
+  --bg: #f0f2f5; --surface: #ffffff; --surface-2: #f6f8fa; --border: #d0d7de;
+  --text: #1f2328; --text-muted: #636c76; --accent: #0969da; --accent-hover: #0550ae;
+  --accent-subtle: #ddf4ff; --final-color: #1a7f37; --final-subtle: #dcffe4;
+  --danger: #cf222e; --danger-subtle: #fff0ee; --initial-color: #9a3fb9; --warn: #9a6700;
+  --state-fill: #ffffff; --state-stroke: #8b949e; --canvas-bg: #f0f2f5;
+  --canvas-dot: #c9d1d9; --edge-color: #57606a; --edge-label-bg: #ffffff;
+  --highlight: #f4b400; --active-state: #0969da; --toolbar-bg: #ffffff;
+  --shadow: 0 1px 3px rgba(0,0,0,.12), 0 1px 2px rgba(0,0,0,.08);
+  --shadow-lg: 0 4px 16px rgba(0,0,0,.12); --radius: 8px;
+  --font-mono: 'SF Mono','Fira Code','Cascadia Code',Consolas,monospace;
+  --font-ui: -apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root {
+  --bg: #0d1117; --surface: #161b22; --surface-2: #21262d; --border: #30363d;
+  --text: #e6edf3; --text-muted: #7d8590; --accent: #2f81f7; --accent-hover: #58a6ff;
+  --accent-subtle: #121d2f; --final-color: #3fb950; --final-subtle: #0d2d17;
+  --danger: #f85149; --danger-subtle: #2d0f0e; --initial-color: #c678dd; --warn: #d29922;
+  --state-fill: #21262d; --state-stroke: #484f58; --canvas-bg: #0d1117;
+  --canvas-dot: #21262d; --edge-color: #484f58; --edge-label-bg: #161b22;
+  --highlight: #e3b341; --active-state: #2f81f7; --toolbar-bg: #161b22;
+  --shadow: 0 1px 3px rgba(0,0,0,.4); --shadow-lg: 0 4px 16px rgba(0,0,0,.4);
+}}
+:root[data-theme="dark"] {
+  --bg: #0d1117; --surface: #161b22; --surface-2: #21262d; --border: #30363d;
+  --text: #e6edf3; --text-muted: #7d8590; --accent: #2f81f7; --accent-hover: #58a6ff;
+  --accent-subtle: #121d2f; --final-color: #3fb950; --final-subtle: #0d2d17;
+  --danger: #f85149; --danger-subtle: #2d0f0e; --initial-color: #c678dd; --warn: #d29922;
+  --state-fill: #21262d; --state-stroke: #484f58; --canvas-bg: #0d1117;
+  --canvas-dot: #21262d; --edge-color: #484f58; --edge-label-bg: #161b22;
+  --highlight: #e3b341; --active-state: #2f81f7; --toolbar-bg: #161b22;
+  --shadow: 0 1px 3px rgba(0,0,0,.4); --shadow-lg: 0 4px 16px rgba(0,0,0,.4);
+}
+:root[data-theme="light"] {
+  --bg: #f0f2f5; --surface: #ffffff; --surface-2: #f6f8fa; --border: #d0d7de;
+  --text: #1f2328; --text-muted: #636c76; --accent: #0969da; --accent-hover: #0550ae;
+  --accent-subtle: #ddf4ff; --final-color: #1a7f37; --final-subtle: #dcffe4;
+  --danger: #cf222e; --danger-subtle: #fff0ee; --initial-color: #9a3fb9; --warn: #9a6700;
+  --state-fill: #ffffff; --state-stroke: #8b949e; --canvas-bg: #f0f2f5;
+  --canvas-dot: #c9d1d9; --edge-color: #57606a; --edge-label-bg: #ffffff;
+  --highlight: #f4b400; --active-state: #0969da; --toolbar-bg: #ffffff;
+  --shadow: 0 1px 3px rgba(0,0,0,.12); --shadow-lg: 0 4px 16px rgba(0,0,0,.12);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--font-ui);background:var(--bg);color:var(--text);display:flex;flex-direction:column;user-select:none}
+
+/* ── Toolbar ── */
+#toolbar{height:52px;background:var(--toolbar-bg);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:4px;padding:0 12px;flex-shrink:0;z-index:10;box-shadow:var(--shadow)}
+.toolbar-logo{font-family:var(--font-mono);font-size:13px;font-weight:600;color:var(--accent);letter-spacing:-.3px;margin-right:8px;padding-right:12px;border-right:1px solid var(--border)}
+.tb-sep{width:1px;height:24px;background:var(--border);margin:0 6px}
+.tb-btn{height:32px;padding:0 10px;border:1px solid transparent;border-radius:6px;background:transparent;color:var(--text-muted);font-family:var(--font-ui);font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;transition:background .12s,color .12s,border-color .12s}
+.tb-btn:hover{background:var(--surface-2);color:var(--text);border-color:var(--border)}
+.tb-btn.active{background:var(--accent-subtle);color:var(--accent);border-color:var(--accent)}
+.tb-btn.danger:hover{background:var(--danger-subtle);color:var(--danger);border-color:var(--danger)}
+.tb-btn.icon{padding:0 8px;min-width:32px;justify-content:center}
+.tb-btn svg{flex-shrink:0}
+.tb-spacer{flex:1}
+#zoom-label{font-size:12px;color:var(--text-muted);font-family:var(--font-mono);min-width:40px;text-align:center;cursor:default}
+
+/* ── Main ── */
+#main{flex:1;display:flex;overflow:hidden;position:relative}
+#canvas-wrap{flex:1;position:relative;overflow:hidden}
+#canvas{display:block;width:100%;height:100%;touch-action:none}
+#canvas.mode-select{cursor:default}
+#canvas.mode-connect{cursor:crosshair}
+#canvas.panning{cursor:grab}
+#canvas.panning-active{cursor:grabbing}
+#canvas.dragging{cursor:grabbing}
+
+/* ── Sidebar ── */
+#sidebar{width:220px;background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
+.sidebar-section{padding:14px 14px 10px;border-bottom:1px solid var(--border)}
+.sidebar-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:10px}
+.sidebar-empty{padding:20px 14px;font-size:12px;color:var(--text-muted);line-height:1.6;text-align:center}
+.field-group{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+.field-label{font-size:11px;color:var(--text-muted)}
+.field-input{width:100%;padding:6px 8px;border:1px solid var(--border);border-radius:6px;background:var(--surface-2);color:var(--text);font-family:var(--font-mono);font-size:13px;outline:none;transition:border-color .12s}
+.field-input:focus{border-color:var(--accent)}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:4px 0}
+.toggle-row span{font-size:13px;color:var(--text)}
+.toggle{position:relative;width:34px;height:18px}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;inset:0;background:var(--border);border-radius:9px;cursor:pointer;transition:background .15s}
+.toggle-slider::before{content:'';position:absolute;width:12px;height:12px;left:3px;top:3px;background:white;border-radius:50%;transition:transform .15s}
+.toggle input:checked+.toggle-slider{background:var(--accent)}
+.toggle input:checked+.toggle-slider::before{transform:translateX(16px)}
+.badge-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.badge{font-size:11px;padding:2px 7px;border-radius:20px;font-family:var(--font-mono);border:1px solid var(--border);color:var(--text-muted)}
+.badge.accent{background:var(--accent-subtle);color:var(--accent);border-color:var(--accent)}
+.badge.green{background:var(--final-subtle);color:var(--final-color);border-color:var(--final-color)}
+.badge.purple{background:#f3e8ff;color:var(--initial-color);border-color:var(--initial-color)}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stat-card{background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:8px 10px}
+.stat-num{font-size:20px;font-weight:700;font-family:var(--font-mono);color:var(--text)}
+.stat-lbl{font-size:10px;color:var(--text-muted);margin-top:1px;text-transform:uppercase;letter-spacing:.05em}
+.alphabet-display{font-family:var(--font-mono);font-size:12px;color:var(--text);background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;word-break:break-all;min-height:28px}
+.type-badge{display:inline-block;font-size:11px;font-weight:700;font-family:var(--font-mono);padding:3px 8px;border-radius:4px;background:var(--accent-subtle);color:var(--accent);border:1px solid var(--accent)}
+.type-badge.nfa{background:#fdf8ea;color:var(--warn);border-color:var(--warn)}
+
+/* ── Test bar ── */
+#testbar{height:54px;background:var(--surface);border-top:1px solid var(--border);display:flex;align-items:center;gap:8px;padding:0 16px;flex-shrink:0}
+.test-label{font-size:12px;color:var(--text-muted);white-space:nowrap}
+#test-input{flex:1;max-width:320px;padding:7px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface-2);color:var(--text);font-family:var(--font-mono);font-size:13px;outline:none;transition:border-color .12s}
+#test-input:focus{border-color:var(--accent)}
+.run-btn{padding:7px 14px;border:none;border-radius:6px;background:var(--accent);color:white;font-size:13px;font-family:var(--font-ui);cursor:pointer;font-weight:500;transition:background .12s}
+.run-btn:hover{background:var(--accent-hover)}
+#step-btn{padding:7px 12px;border:1px solid var(--border);border-radius:6px;background:transparent;color:var(--text-muted);font-size:13px;cursor:pointer;transition:background .12s}
+#step-btn:hover{background:var(--surface-2)}
+#result-display{padding:5px 12px;border-radius:6px;font-size:13px;font-weight:600;font-family:var(--font-mono);min-width:90px;text-align:center;opacity:0;transition:opacity .2s}
+#result-display.show{opacity:1}
+#result-display.accept{background:var(--final-subtle);color:var(--final-color)}
+#result-display.reject{background:var(--danger-subtle);color:var(--danger)}
+.step-indicator{font-size:12px;color:var(--text-muted);font-family:var(--font-mono);min-width:80px}
+
+/* ── Context menu ── */
+#ctx-menu{position:fixed;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-lg);min-width:160px;z-index:1000;overflow:hidden;display:none}
+.ctx-item{padding:8px 14px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:8px;color:var(--text);transition:background .1s}
+.ctx-item:hover{background:var(--surface-2)}
+.ctx-item.danger{color:var(--danger)}
+.ctx-item.danger:hover{background:var(--danger-subtle)}
+.ctx-sep{height:1px;background:var(--border);margin:3px 0}
+
+/* ── Symbol dialog ── */
+#sym-dialog{position:fixed;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-lg);padding:14px;z-index:1000;min-width:200px;display:none}
+.sym-dialog-title{font-size:12px;color:var(--text-muted);margin-bottom:8px}
+.sym-dialog-row{display:flex;gap:6px}
+#sym-input{flex:1;padding:6px 8px;border:1px solid var(--border);border-radius:6px;background:var(--surface-2);color:var(--text);font-family:var(--font-mono);font-size:14px;outline:none}
+#sym-input:focus{border-color:var(--accent)}
+.sym-ok{padding:6px 10px;border:none;border-radius:6px;background:var(--accent);color:white;font-size:13px;cursor:pointer}
+.sym-eps{padding:6px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface-2);color:var(--text);font-size:14px;cursor:pointer;font-family:var(--font-mono);transition:background .1s}
+.sym-eps:hover{background:var(--accent-subtle);border-color:var(--accent);color:var(--accent)}
+.sym-hint{font-size:11px;color:var(--text-muted);margin-top:6px}
+
+/* ── Batch test side panel ── */
+#batch-side{width:0;overflow:hidden;flex-shrink:0;transition:width .22s ease;display:flex;flex-direction:column;background:var(--surface);border-right:1px solid var(--border)}
+#batch-side.open{width:290px}
+.batch-panel{display:flex;flex-direction:column;width:290px;height:100%;overflow:hidden}
+.batch-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.batch-title{font-size:14px;font-weight:600;color:var(--text)}
+.batch-close{width:28px;height:28px;border:none;background:transparent;cursor:pointer;border-radius:6px;color:var(--text-muted);font-size:18px;display:flex;align-items:center;justify-content:center;transition:background .1s}
+.batch-close:hover{background:var(--surface-2);color:var(--text)}
+.batch-body{padding:14px 16px;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
+#batch-input{width:100%;height:110px;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface-2);color:var(--text);font-family:var(--font-mono);font-size:13px;resize:vertical;outline:none;box-sizing:border-box}
+#batch-input:focus{border-color:var(--accent)}
+.batch-run{padding:7px 16px;border:none;border-radius:6px;background:var(--accent);color:white;font-size:13px;font-family:var(--font-ui);cursor:pointer;font-weight:500;align-self:flex-start;transition:background .12s}
+.batch-run:hover{background:var(--accent-hover)}
+#batch-results{display:flex;flex-direction:column;gap:0;border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.batch-row{display:flex;align-items:center;gap:10px;padding:7px 12px;border-bottom:1px solid var(--border);font-size:13px}
+.batch-row:last-child{border-bottom:none}
+.batch-str{font-family:var(--font-mono);flex:1;color:var(--text);word-break:break-all}
+.batch-str.empty{color:var(--text-muted);font-style:italic}
+.batch-badge{font-size:11px;font-weight:700;font-family:var(--font-mono);padding:2px 8px;border-radius:4px;white-space:nowrap}
+.batch-badge.accept{background:var(--final-subtle);color:var(--final-color)}
+.batch-badge.reject{background:var(--danger-subtle);color:var(--danger)}
+.batch-summary{font-size:12px;color:var(--text-muted);margin-top:2px}
+
+/* ── Toast ── */
+#toast{position:fixed;bottom:70px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 16px;font-size:13px;box-shadow:var(--shadow-lg);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:999;white-space:nowrap}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── Hint badge ── */
+#pan-hint{position:absolute;bottom:12px;right:12px;font-size:11px;color:var(--text-muted);background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:4px 9px;pointer-events:none;opacity:.7}
+</style>
+
+<div id="app" style="display:flex;flex-direction:column;height:100vh;">
+  <header id="toolbar">
+    <span class="toolbar-logo">AF·SIM</span>
+
+    <button class="tb-btn active" id="btn-select" onclick="setMode('select')" title="Selecionar / Mover (S)">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M2 1l12 6-6 1-3 6z"/></svg>
+      Selecionar
+    </button>
+    <button class="tb-btn" id="btn-connect" onclick="setMode('connect')" title="Conectar estados (C)">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="3" cy="8" r="2"/><circle cx="13" cy="8" r="2"/><path d="M5 8h6" stroke-dasharray="2 1"/></svg>
+      Conectar
+    </button>
+
+    <div class="tb-sep"></div>
+
+    <button class="tb-btn" onclick="addStateAt()" title="Adicionar estado (A)">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="5"/><path d="M8 5v6M5 8h6"/></svg>
+      Estado
+    </button>
+
+    <div class="tb-sep"></div>
+
+    <button class="tb-btn icon" id="btn-step-back" onclick="stepBack()" title="Passo anterior">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M10 4L5 8l5 4V4z"/><rect x="3" y="4" width="2" height="8" rx="1"/></svg>
+    </button>
+    <button class="tb-btn icon" id="btn-step-fwd" onclick="stepForward()" title="Próximo passo">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M6 4l5 4-5 4V4z"/><rect x="11" y="4" width="2" height="8" rx="1"/></svg>
+    </button>
+
+    <div class="tb-sep"></div>
+
+    <!-- Zoom controls -->
+    <button class="tb-btn icon" onclick="changeZoom(1/1.25)" title="Diminuir zoom (-)">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="8" x2="13" y2="8"/></svg>
+    </button>
+    <span id="zoom-label" onclick="resetView()" title="Clique para redefinir vista">100%</span>
+    <button class="tb-btn icon" onclick="changeZoom(1.25)" title="Aumentar zoom (+)">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="3" x2="8" y2="13"/><line x1="3" y1="8" x2="13" y2="8"/></svg>
+    </button>
+    <button class="tb-btn icon" onclick="fitView()" title="Ajustar à tela (F)">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4"/></svg>
+    </button>
+
+    <div class="tb-spacer"></div>
+
+    <button class="tb-btn" onclick="exportPython()" title="Exportar código Python">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M5 6h4M5 9h6"/></svg>
+      Exportar Python
+    </button>
+    <button class="tb-btn icon danger" onclick="clearAll()" title="Limpar tudo">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4h10M6 4V3h4v1M5 4l.5 8h5l.5-8"/></svg>
+    </button>
+    <div class="tb-sep"></div>
+    <button class="tb-btn icon" onclick="toggleTheme()" title="Alternar tema">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 1.5a5.5 5.5 0 010 11V2.5z"/></svg>
+    </button>
+  </header>
+
+  <div id="main">
+    <div id="batch-side">
+      <div class="batch-panel">
+        <div class="batch-header">
+          <span class="batch-title">Testes em lote</span>
+          <button class="batch-close" onclick="closeBatchModal()">×</button>
+        </div>
+        <div class="batch-body">
+          <div>
+            <div class="field-label" style="margin-bottom:6px">Strings para testar (uma por linha)</div>
+            <textarea id="batch-input" placeholder="ab&#10;aab&#10;ba&#10;ε"></textarea>
+          </div>
+          <button class="batch-run" onclick="runBatch()">▶ Testar todas</button>
+          <div id="batch-results"></div>
+          <div class="batch-summary" id="batch-summary"></div>
+        </div>
+      </div>
+    </div>
+    <div id="canvas-wrap">
+      <canvas id="canvas" class="mode-select"></canvas>
+      <div id="pan-hint">Espaço + arrastar para mover · Scroll para zoom</div>
+    </div>
+
+    <aside id="sidebar">
+      <div class="sidebar-section" id="sidebar-content">
+        <div class="sidebar-empty">Clique duplo no canvas para adicionar um estado.<br><br>Use <b>Conectar</b> para criar transições.</div>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-label">Autômato</div>
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-num" id="stat-states">0</div><div class="stat-lbl">Estados</div></div>
+          <div class="stat-card"><div class="stat-num" id="stat-trans">0</div><div class="stat-lbl">Transições</div></div>
+        </div>
+        <div style="margin-top:8px">
+          <div class="field-label" style="margin-bottom:4px">Alfabeto</div>
+          <div class="alphabet-display" id="stat-alphabet">—</div>
+        </div>
+        <div style="margin-top:8px;display:flex;align-items:center;gap:8px">
+          <span class="field-label">Tipo:</span>
+          <span class="type-badge" id="stat-type">AFD</span>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <div id="testbar">
+    <span class="test-label">Testar:</span>
+    <input type="text" id="test-input" placeholder="Digite a string..." spellcheck="false">
+    <button class="run-btn" onclick="runTest()">▶ Executar</button>
+    <button id="step-btn" onclick="startStepMode()">Passo a passo</button>
+    <div id="result-display"></div>
+    <div class="step-indicator" id="step-indicator"></div>
+    <div class="tb-sep" style="margin:0 4px"></div>
+    <button class="tb-btn" onclick="openBatchModal()" title="Testar múltiplas strings">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4h10M3 8h7M3 12h5"/></svg>
+      Testes em lote
+    </button>
+  </div>
+</div>
+
+
+<div id="ctx-menu">
+  <div class="ctx-item" id="ctx-rename" onclick="ctxRename()">
+    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12l2-2 6-6 2 2-6 6-2 2zm8-10l2 2"/></svg>
+    Renomear
+  </div>
+  <div class="ctx-item" id="ctx-toggle-final" onclick="ctxToggleFinal()">
+    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="5"/><circle cx="8" cy="8" r="3"/></svg>
+    Marcar como final
+  </div>
+  <div class="ctx-item" id="ctx-set-initial" onclick="ctxSetInitial()">
+    <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><path d="M3 8l5-5v10z"/></svg>
+    Definir como inicial
+  </div>
+  <div class="ctx-sep"></div>
+  <div class="ctx-item" id="ctx-edit-sym" onclick="ctxEditSymbol()" style="display:none">
+    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12l2-2 6-6 2 2-6 6-2 2z"/></svg>
+    Editar símbolo
+  </div>
+  <div class="ctx-item danger" id="ctx-delete" onclick="ctxDelete()">
+    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4h10M6 4V3h4v1M5 4l.5 8h5l.5-8"/></svg>
+    Excluir
+  </div>
+</div>
+
+<div id="sym-dialog">
+  <div class="sym-dialog-title" id="sym-dialog-title">Símbolo da transição</div>
+  <div class="sym-dialog-row">
+    <input type="text" id="sym-input" placeholder="a, b ..." spellcheck="false" maxlength="40">
+    <button class="sym-eps" onclick="insertEpsilon()" title="Inserir ε (transição vazia)">ε</button>
+    <button class="sym-ok" onclick="confirmSymbol()">OK</button>
+  </div>
+  <div class="sym-hint">Separe múltiplos símbolos com vírgula.</div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ── Constants ──
+const STATE_R = 30;
+const ARROW_SIZE = 10;
+const MIN_ZOOM = 0.25;
+const MAX_ZOOM = 3;
+
+// ── Tamanho do canvas) ──
+const WORLD_W = 2400;   // largura em pixels
+const WORLD_H = 1600;   // altura em pixels 
+
+// ── Data model ──
+let states = new Map();      // id → {id, x, y, label, isFinal}
+let transitions = new Map(); // id → {id, from, to, symbols: Set<string>}
+let initialState = null;
+let nextStateId = 0;
+let nextTransId = 0;
+
+// ── View transform (world → screen) ──
+// screen = world * zoom + pan
+let panX = 0, panY = 0, zoom = 1;
+
+// ── Interaction state ──
+let mode = 'select';
+let selected = null;
+let dragging = null;        // {stateId, ox, oy}
+let draggingCurve = null;   // {transId} — arrastar ponto de controle da seta
+let isPanning = false;
+let panStart = null;
+let spaceDown = false;
+let connectFrom = null;
+let previewWorldPos = null;
+let ctxTarget = null;
+
+// ── Simulation ──
+let simSteps = null, simStep = 0, simActive = false;
+
+// ── Canvas ──
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+let dpr = 1;
+
+// ── Coordinate helpers ──
+function screenToWorld(sx, sy) {
+  return { x: (sx - panX) / zoom, y: (sy - panY) / zoom };
+}
+function worldToScreen(wx, wy) {
+  return { x: wx * zoom + panX, y: wy * zoom + panY };
+}
+// Returns canvas-relative position from a mouse event (screen space)
+function screenPos(e) {
+  const r = canvas.getBoundingClientRect();
+  return { x: e.clientX - r.left, y: e.clientY - r.top };
+}
+
+// ── Resize ──
+function resizeCanvas() {
+  dpr = window.devicePixelRatio || 1;
+  const r = canvas.getBoundingClientRect();
+  canvas.width = r.width * dpr;
+  canvas.height = r.height * dpr;
+  ctx.scale(dpr, dpr);
+  render();
+}
+
+function cssVar(n) {
+  return getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+}
+
+// ── Render ──
+function render() {
+  const W = canvas.getBoundingClientRect().width;
+  const H = canvas.getBoundingClientRect().height;
+  ctx.clearRect(0, 0, W, H);
+
+  // Background
+  ctx.fillStyle = cssVar('--canvas-bg');
+  ctx.fillRect(0, 0, W, H);
+
+  // Apply world transform
+  ctx.save();
+  ctx.translate(panX, panY);
+  ctx.scale(zoom, zoom);
+
+  drawGrid(W, H);
+  drawWorldBorder();
+
+  for (const t of transitions.values()) drawTransition(t);
+
+  if (connectFrom !== null && previewWorldPos) {
+    const s = states.get(connectFrom);
+    if (s) drawPreviewLine(s, previewWorldPos);
+  }
+
+  for (const s of states.values()) drawState(s);
+
+  ctx.restore();
+
+  updateZoomLabel();
+}
+
+function drawGrid(W, H) {
+  const gap = 28;
+  // Visible world rect
+  const x0 = -panX / zoom, y0 = -panY / zoom;
+  const x1 = x0 + W / zoom, y1 = y0 + H / zoom;
+  const startX = Math.floor(x0 / gap) * gap;
+  const startY = Math.floor(y0 / gap) * gap;
+
+  ctx.fillStyle = cssVar('--canvas-dot');
+  // Scale dot radius inversely so dots stay ~1px on screen
+  const dotR = Math.max(0.5, 1 / zoom);
+  for (let x = startX; x < x1; x += gap) {
+    for (let y = startY; y < y1; y += gap) {
+      ctx.beginPath();
+      ctx.arc(x, y, dotR, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+}
+
+function drawWorldBorder() {
+  // Sombra exterior (área fora dos limites)
+  const isDark = getComputedStyle(document.documentElement).getPropertyValue('--canvas-bg').trim().startsWith('#0');
+  ctx.fillStyle = isDark ? 'rgba(0,0,0,0.35)' : 'rgba(0,0,0,0.08)';
+
+  // Faixas escuras fora do mundo (cima, baixo, esquerda, direita)
+  const ext = 5000;
+  ctx.fillRect(-ext, -ext, WORLD_W + ext*2, ext);              // topo
+  ctx.fillRect(-ext, WORLD_H, WORLD_W + ext*2, ext);           // baixo
+  ctx.fillRect(-ext, 0, ext, WORLD_H);                          // esquerda
+  ctx.fillRect(WORLD_W, 0, ext, WORLD_H);                       // direita
+
+  // Borda pontilhada do mundo
+  ctx.save();
+  ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.20)';
+  ctx.lineWidth = 1.5 / zoom;
+  ctx.setLineDash([8 / zoom, 6 / zoom]);
+  ctx.strokeRect(0, 0, WORLD_W, WORLD_H);
+  ctx.setLineDash([]);
+  ctx.restore();
+}
+
+function drawState(s) {
+  const isSel = selected?.type === 'state' && selected.id === s.id;
+  const isInit = s.id === initialState;
+  const isSimActive = simActive && simSteps && simStep < simSteps.length &&
+    simSteps[simStep].activeStates?.has(s.id);
+  const isSimAccept = isSimActive && simStep === simSteps.length - 1 && s.isFinal;
+  const isConnSrc = connectFrom === s.id;
+  const {x, y} = s, r = STATE_R;
+
+  if (isSimActive) {
+    ctx.shadowColor = isSimAccept ? cssVar('--final-color') : cssVar('--active-state');
+    ctx.shadowBlur = 18 / zoom;
+  }
+
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.fillStyle = isSimActive
+    ? (isSimAccept ? cssVar('--final-subtle') : cssVar('--accent-subtle'))
+    : cssVar('--state-fill');
+  ctx.fill();
+
+  let strokeColor = cssVar('--state-stroke'), strokeW = 1.5;
+  if (isSel)        { strokeColor = cssVar('--accent');         strokeW = 2.5; }
+  else if (isConnSrc){ strokeColor = cssVar('--initial-color'); strokeW = 2.5; }
+  else if (isSimActive){ strokeColor = isSimAccept ? cssVar('--final-color') : cssVar('--active-state'); strokeW = 2.5; }
+
+  ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.strokeStyle = strokeColor; ctx.lineWidth = strokeW; ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  if (s.isFinal) {
+    ctx.beginPath(); ctx.arc(x, y, r - 5, 0, Math.PI * 2);
+    ctx.strokeStyle = cssVar('--final-color'); ctx.lineWidth = 1.5; ctx.stroke();
+  }
+
+  if (isInit) {
+    const ax = x - r - 28;
+    ctx.beginPath(); ctx.moveTo(ax, y); ctx.lineTo(x - r - 2, y);
+    ctx.strokeStyle = cssVar('--initial-color'); ctx.lineWidth = 2; ctx.stroke();
+    drawArrowhead(x - r - 2, y, 0, cssVar('--initial-color'), 8);
+  }
+
+  ctx.fillStyle = cssVar('--text');
+  ctx.font = `600 13px ${cssVar('--font-mono')}`;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(s.label, x, y);
+}
+
+function drawTransition(t) {
+  if (t.from === t.to) { drawSelfLoop(t); return; }
+  const from = states.get(t.from), to = states.get(t.to);
+  if (!from || !to) return;
+
+  const isSel = selected?.type === 'transition' && selected.id === t.id;
+  const isHL = simActive && simSteps && simStep > 0 && simStep < simSteps.length &&
+    simSteps[simStep].usedTransition === t.id;
+
+  const dx = to.x - from.x, dy = to.y - from.y;
+  const dist = Math.hypot(dx, dy);
+  const nx = -dy / dist, ny = dx / dist;
+  const sx = from.x + (dx/dist)*STATE_R, sy = from.y + (dy/dist)*STATE_R;
+  const ex = to.x   - (dx/dist)*STATE_R, ey = to.y   - (dy/dist)*STATE_R;
+  const curve = t.curve ?? 0;
+  const cpX = (sx+ex)/2 + nx*curve, cpY = (sy+ey)/2 + ny*curve;
+
+  const isDraggingThis = draggingCurve?.transId === t.id;
+  const color = isSel ? cssVar('--accent') : isHL ? cssVar('--highlight') : cssVar('--edge-color');
+  if (isHL) { ctx.shadowColor = cssVar('--highlight'); ctx.shadowBlur = 10 / zoom; }
+
+  ctx.beginPath(); ctx.moveTo(sx, sy); ctx.quadraticCurveTo(cpX, cpY, ex, ey);
+  ctx.strokeStyle = color; ctx.lineWidth = (isSel || isHL) ? 2.5 : 1.5; ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  drawArrowhead(ex, ey, Math.atan2(ey - cpY, ex - cpX), color, ARROW_SIZE);
+  drawEdgeLabel(cpX, cpY, [...t.symbols].join(', '), isSel, isHL);
+
+  // Handle de arrasto (visível quando selecionado)
+  if (isSel) {
+    ctx.beginPath();
+    ctx.arc(cpX, cpY, 5 / zoom, 0, Math.PI * 2);
+    ctx.fillStyle = cssVar('--accent');
+    ctx.fill();
+    ctx.strokeStyle = 'white';
+    ctx.lineWidth = 1.5 / zoom;
+    ctx.stroke();
+  }
+}
+
+function drawSelfLoop(t) {
+  const s = states.get(t.from);
+  if (!s) return;
+  const isSel = selected?.type === 'transition' && selected.id === t.id;
+  const {x, y} = s, r = STATE_R;
+  const color = isSel ? cssVar('--accent') : cssVar('--edge-color');
+
+  ctx.beginPath();
+  ctx.save();
+  ctx.translate(x, y - r + 2);
+  ctx.scale(1.2, 0.9);
+  ctx.arc(0, -18, 18, 0, Math.PI * 2);
+  ctx.restore();
+  ctx.strokeStyle = color; ctx.lineWidth = isSel ? 2.5 : 1.5; ctx.stroke();
+
+  drawArrowhead(x + 14, y - r + 2, Math.PI / 2, color, 8);
+  drawEdgeLabel(x, y - r - 36, [...t.symbols].join(', '), isSel, false);
+}
+
+function drawEdgeLabel(x, y, text, isSel, isHL) {
+  const pad = 5;
+  ctx.font = `13px ${cssVar('--font-mono')}`;
+  const tw = ctx.measureText(text).width;
+  const bw = tw + pad*2, bh = 20;
+  ctx.fillStyle = (isSel || isHL) ? cssVar('--accent-subtle') : cssVar('--edge-label-bg');
+  ctx.beginPath(); ctx.roundRect(x - bw/2, y - bh/2, bw, bh, 4); ctx.fill();
+  if (isSel || isHL) {
+    ctx.strokeStyle = isHL ? cssVar('--highlight') : cssVar('--accent');
+    ctx.lineWidth = 1; ctx.stroke();
+  }
+  ctx.fillStyle = isSel ? cssVar('--accent') : isHL ? cssVar('--warn') : cssVar('--text-muted');
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(text, x, y);
+}
+
+function drawArrowhead(x, y, angle, color, size) {
+  ctx.save(); ctx.translate(x, y); ctx.rotate(angle);
+  ctx.beginPath(); ctx.moveTo(0, 0);
+  ctx.lineTo(-size, -size*.45); ctx.lineTo(-size, size*.45);
+  ctx.closePath(); ctx.fillStyle = color; ctx.fill(); ctx.restore();
+}
+
+function drawPreviewLine(from, wpos) {
+  ctx.beginPath(); ctx.moveTo(from.x, from.y); ctx.lineTo(wpos.x, wpos.y);
+  ctx.strokeStyle = cssVar('--initial-color'); ctx.lineWidth = 1.5;
+  ctx.setLineDash([5, 4]); ctx.stroke(); ctx.setLineDash([]);
+}
+
+// ── Hit testing (world coords) ──
+function hitState(wx, wy) {
+  for (const s of states.values())
+    if (Math.hypot(wx - s.x, wy - s.y) <= STATE_R) return s;
+  return null;
+}
+
+function hitTransition(wx, wy) {
+  for (const t of transitions.values()) {
+    if (t.from === t.to) {
+      const s = states.get(t.from);
+      if (s && Math.hypot(wx - s.x, wy - (s.y - STATE_R - 36)) < 14) return t;
+      continue;
+    }
+    const from = states.get(t.from), to = states.get(t.to);
+    if (!from || !to) continue;
+    const dx = to.x - from.x, dy = to.y - from.y, dist = Math.hypot(dx, dy);
+    const nx = -dy/dist, ny = dx/dist;
+    const sx = from.x+(dx/dist)*STATE_R, sy = from.y+(dy/dist)*STATE_R;
+    const ex = to.x  -(dx/dist)*STATE_R, ey = to.y  -(dy/dist)*STATE_R;
+    const curve = t.curve ?? 0;
+    const cpX = (sx+ex)/2 + nx*curve, cpY = (sy+ey)/2 + ny*curve;
+    if (Math.hypot(wx - cpX, wy - cpY) < 16) return t;
+    const mx = .25*sx + .5*cpX + .25*ex, my = .25*sy + .5*cpY + .25*ey;
+    if (Math.hypot(wx - mx, wy - my) < 12) return t;
+  }
+  return null;
+}
+
+// ── Mouse events ──
+let mouseDownScreen = null;
+let didDrag = false;
+
+canvas.addEventListener('mousedown', e => {
+  if (e.button === 1) { e.preventDefault(); startPan(e); return; }
+  if (e.button !== 0) return;
+  hideCtxMenu(); hideSymDialog();
+  mouseDownScreen = screenPos(e);
+  didDrag = false;
+
+  if (spaceDown) { startPan(e); return; }
+
+  const sp = screenPos(e);
+  const wp = screenToWorld(sp.x, sp.y);
+
+  if (mode === 'select') {
+    const s = hitState(wp.x, wp.y);
+    if (s) {
+      selected = { type: 'state', id: s.id };
+      dragging = { stateId: s.id, ox: wp.x - s.x, oy: wp.y - s.y };
+      canvas.classList.add('dragging');
+      updateSidebar();
+    } else {
+      const t = hitTransition(wp.x, wp.y);
+      if (t) {
+        selected = { type: 'transition', id: t.id };
+        if (t.from !== t.to) draggingCurve = { transId: t.id };
+        canvas.classList.add('dragging');
+        updateSidebar();
+      } else {
+        selected = null;
+        startPan(e);
+        updateSidebar();
+      }
+    }
+  } else if (mode === 'connect') {
+    const s = hitState(wp.x, wp.y);
+    if (s) {
+      if (connectFrom === null) {
+        connectFrom = s.id;
+      } else {
+        openSymDialog(e.clientX, e.clientY, connectFrom, s.id);
+        connectFrom = null;
+      }
+    } else { connectFrom = null; }
+  }
+  render();
+});
+
+canvas.addEventListener('mousemove', e => {
+  const sp = screenPos(e);
+  const wp = screenToWorld(sp.x, sp.y);
+
+  if (isPanning && panStart) {
+    panX = panStart.px + (e.clientX - panStart.mx);
+    panY = panStart.py + (e.clientY - panStart.my);
+    clampPan();
+    didDrag = true;
+    render(); return;
+  }
+
+  if (draggingCurve) {
+    const t = transitions.get(draggingCurve.transId);
+    if (t && t.from !== t.to) {
+      const from = states.get(t.from), to = states.get(t.to);
+      if (from && to) {
+        const dx = to.x - from.x, dy = to.y - from.y, dist = Math.hypot(dx, dy);
+        const nx = -dy/dist, ny = dx/dist;
+        const midX = (from.x + to.x) / 2, midY = (from.y + to.y) / 2;
+        t.curve = (wp.x - midX)*nx + (wp.y - midY)*ny;
+      }
+    }
+    didDrag = true;
+    render(); return;
+  }
+
+  if (dragging) {
+    const s = states.get(dragging.stateId);
+    if (s) {
+      s.x = Math.max(STATE_R, Math.min(WORLD_W - STATE_R, wp.x - dragging.ox));
+      s.y = Math.max(STATE_R, Math.min(WORLD_H - STATE_R, wp.y - dragging.oy));
+      didDrag = true;
+    }
+    render(); return;
+  }
+
+  if (mode === 'connect' && connectFrom !== null) {
+    previewWorldPos = wp;
+    render();
+  }
+});
+
+canvas.addEventListener('mouseup', e => {
+  if (isPanning) { stopPan(); return; }
+  dragging = null;
+  draggingCurve = null;
+  canvas.classList.remove('dragging');
+});
+
+canvas.addEventListener('dblclick', e => {
+  if (didDrag) return;
+  if (mode !== 'select') return;
+  const sp = screenPos(e);
+  const wp = screenToWorld(sp.x, sp.y);
+  if (!hitState(wp.x, wp.y)) addState(wp.x, wp.y);
+});
+
+canvas.addEventListener('contextmenu', e => {
+  e.preventDefault();
+  const sp = screenPos(e);
+  const wp = screenToWorld(sp.x, sp.y);
+  const s = hitState(wp.x, wp.y);
+  if (s) { ctxTarget = { type: 'state', id: s.id }; showCtxMenu(e.clientX, e.clientY, 'state'); return; }
+  const t = hitTransition(wp.x, wp.y);
+  if (t) { ctxTarget = { type: 'transition', id: t.id }; showCtxMenu(e.clientX, e.clientY, 'transition'); }
+});
+
+// ── Scroll wheel zoom (toward mouse) ──
+canvas.addEventListener('wheel', e => {
+  e.preventDefault();
+  const sp = screenPos(e);
+  const factor = e.deltaY < 0 ? 1.1 : 1 / 1.1;
+  zoomAt(sp.x, sp.y, factor);
+}, { passive: false });
+
+// ── Pan helpers ──
+function startPan(e) {
+  isPanning = true;
+  panStart = { mx: e.clientX, my: e.clientY, px: panX, py: panY };
+  canvas.classList.add('panning-active');
+}
+function stopPan() {
+  isPanning = false; panStart = null;
+  canvas.classList.remove('panning-active');
+}
+
+// ── Spacebar pan mode ──
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT') return;
+  if (e.key === ' ') { e.preventDefault(); if (!spaceDown) { spaceDown = true; canvas.classList.add('panning'); } return; }
+  if (e.key === 's' || e.key === 'S') setMode('select');
+  if (e.key === 'c' || e.key === 'C') setMode('connect');
+  if (e.key === 'e' || e.key === 'E') addStateAt();
+  if (e.key === 'f' || e.key === 'F') fitView();
+  if (e.key === '+' || e.key === '=') changeZoom(1.25);
+  if (e.key === '-') changeZoom(1/1.25);
+  if (e.key === 'Escape') { connectFrom = null; selected = null; hideSymDialog(); updateSidebar(); render(); }
+  if ((e.key === 'Delete' || e.key === 'Backspace') && selected) deleteSelected();
+});
+document.addEventListener('keyup', e => {
+  if (e.key === ' ') {
+    spaceDown = false;
+    canvas.classList.remove('panning');
+    if (isPanning) stopPan();
+  }
+});
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('#ctx-menu')) hideCtxMenu();
+});
+
+// ── Zoom functions ──
+function zoomAt(sx, sy, factor) {
+  const newZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoom * factor));
+  panX = sx - (sx - panX) * (newZoom / zoom);
+  panY = sy - (sy - panY) * (newZoom / zoom);
+  zoom = newZoom;
+  clampPan();
+  render();
+}
+
+function changeZoom(factor) {
+  const r = canvas.getBoundingClientRect();
+  zoomAt(r.width / 2, r.height / 2, factor);
+}
+
+function resetView() {
+  zoom = 1; panX = 0; panY = 0;
+  clampPan();
+  render();
+}
+
+function fitView() {
+  if (states.size === 0) { resetView(); return; }
+  const r = canvas.getBoundingClientRect();
+  const pad = 80;
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  for (const s of states.values()) {
+    minX = Math.min(minX, s.x - STATE_R); minY = Math.min(minY, s.y - STATE_R);
+    maxX = Math.max(maxX, s.x + STATE_R); maxY = Math.max(maxY, s.y + STATE_R);
+  }
+  const bw = maxX - minX + pad * 2, bh = maxY - minY + pad * 2;
+  zoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, Math.min(r.width / bw, r.height / bh)));
+  panX = (r.width  - (minX + maxX) * zoom) / 2;
+  panY = (r.height - (minY + maxY) * zoom) / 2;
+  render();
+}
+
+function updateZoomLabel() {
+  document.getElementById('zoom-label').textContent = Math.round(zoom * 100) + '%';
+}
+
+// Impede que o pan saia dos limites do mundo
+function clampPan() {
+  const r = canvas.getBoundingClientRect();
+  const margin = 60; // px de margem visível mínima nas bordas
+  panX = Math.min(margin, Math.max(r.width  - WORLD_W * zoom - margin, panX));
+  panY = Math.min(margin, Math.max(r.height - WORLD_H * zoom - margin, panY));
+}
+
+// ── State / transition management ──
+function addState(wx, wy) {
+  const id = nextStateId++;
+  const s = { id, x: wx, y: wy, label: nextAvailableLabel(), isFinal: false };
+  states.set(id, s);
+  if (initialState === null) initialState = id;
+  selected = { type: 'state', id };
+  updateSidebar(); updateStats(); render();
+  return s;
+}
+
+function addStateAt() {
+  const r = canvas.getBoundingClientRect();
+  // Place in visible center with slight random offset
+  const cx = (r.width  / 2 - panX) / zoom;
+  const cy = (r.height / 2 - panY) / zoom;
+  addState(cx + (Math.random()-.5)*80, cy + (Math.random()-.5)*80);
+}
+
+function findOrCreateTransition(fromId, toId) {
+  for (const t of transitions.values()) if (t.from === fromId && t.to === toId) return t;
+  const id = nextTransId++;
+  // Se já existe a transição reversa, curvar ambas automaticamente
+  const hasReverse = [...transitions.values()].some(r => r.from === toId && r.to === fromId);
+  const t = { id, from: fromId, to: toId, symbols: new Set(), curve: hasReverse ? 35 : 0 };
+  if (hasReverse) {
+    const rev = [...transitions.values()].find(r => r.from === toId && r.to === fromId);
+    if (rev && rev.curve === 0) rev.curve = 35;
+  }
+  transitions.set(id, t);
+  return t;
+}
+
+function nextAvailableLabel() {
+  const used = new Set([...states.values()].map(s => s.label));
+  let i = 0;
+  while (used.has('q' + i)) i++;
+  return 'q' + i;
+}
+
+function deleteSelected() {
+  if (!selected) return;
+  if (selected.type === 'state') {
+    const id = selected.id;
+    states.delete(id);
+    if (initialState === id) initialState = states.size > 0 ? [...states.keys()][0] : null;
+    for (const [tid, t] of transitions.entries()) if (t.from === id || t.to === id) transitions.delete(tid);
+  } else {
+    transitions.delete(selected.id);
+  }
+  selected = null;
+  updateSidebar(); updateStats(); render();
+}
+
+// ── Context menu ──
+const ctxMenu = document.getElementById('ctx-menu');
+
+function showCtxMenu(x, y, type) {
+  document.getElementById('ctx-rename').style.display     = type === 'state' ? '' : 'none';
+  document.getElementById('ctx-toggle-final').style.display = type === 'state' ? '' : 'none';
+  document.getElementById('ctx-set-initial').style.display  = type === 'state' ? '' : 'none';
+  document.getElementById('ctx-edit-sym').style.display     = type === 'transition' ? '' : 'none';
+  if (type === 'state' && ctxTarget) {
+    const s = states.get(ctxTarget.id);
+    if (s) document.getElementById('ctx-toggle-final').textContent =
+      (s.isFinal ? '  Desmarcar' : '  Marcar') + ' como final';
+  }
+  ctxMenu.style.left = x + 'px'; ctxMenu.style.top = y + 'px';
+  ctxMenu.style.display = 'block';
+  const rc = ctxMenu.getBoundingClientRect();
+  if (rc.right  > window.innerWidth)  ctxMenu.style.left = (x - rc.width)  + 'px';
+  if (rc.bottom > window.innerHeight) ctxMenu.style.top  = (y - rc.height) + 'px';
+}
+function hideCtxMenu() { ctxMenu.style.display = 'none'; }
+
+function ctxRename() {
+  if (!ctxTarget || ctxTarget.type !== 'state') return;
+  hideCtxMenu();
+  selected = { type: 'state', id: ctxTarget.id };
+  updateSidebar();
+  setTimeout(() => document.getElementById('state-name-input')?.focus(), 50);
+}
+function ctxToggleFinal() {
+  if (!ctxTarget || ctxTarget.type !== 'state') return;
+  hideCtxMenu();
+  const s = states.get(ctxTarget.id);
+  if (s) { s.isFinal = !s.isFinal; updateSidebar(); updateStats(); render(); }
+}
+function ctxSetInitial() {
+  if (!ctxTarget || ctxTarget.type !== 'state') return;
+  hideCtxMenu(); initialState = ctxTarget.id; updateStats(); render();
+}
+function ctxEditSymbol() {
+  if (!ctxTarget || ctxTarget.type !== 'transition') return;
+  hideCtxMenu();
+  const t = transitions.get(ctxTarget.id);
+  if (t) openSymDialogEdit(t);
+}
+function ctxDelete() {
+  if (!ctxTarget) return;
+  hideCtxMenu(); selected = ctxTarget; deleteSelected();
+}
+
+// ── Symbol dialog ──
+const symDialog = document.getElementById('sym-dialog');
+const symInput  = document.getElementById('sym-input');
+let pendingTrans = null;
+
+function openSymDialog(clientX, clientY, fromId, toId) {
+  pendingTrans = { fromId, toId };
+  const from = states.get(fromId), to = states.get(toId);
+  document.getElementById('sym-dialog-title').textContent =
+    `Transição: ${from?.label || '?'} → ${to?.label || '?'}`;
+  symInput.value = '';
+  symDialog.style.left = (clientX + 16) + 'px';
+  symDialog.style.top  = (clientY - 20) + 'px';
+  symDialog.style.display = 'block';
+  setTimeout(() => symInput.focus(), 30);
+}
+
+function openSymDialogEdit(t) {
+  pendingTrans = { editId: t.id };
+  const from = states.get(t.from), to = states.get(t.to);
+  document.getElementById('sym-dialog-title').textContent =
+    `Editar: ${from?.label || '?'} → ${to?.label || '?'}`;
+  symInput.value = [...t.symbols].join(', ');
+  const r = canvas.getBoundingClientRect();
+  symDialog.style.left = (r.left + r.width/2 - 100) + 'px';
+  symDialog.style.top  = (r.top  + r.height/2 - 40) + 'px';
+  symDialog.style.display = 'block';
+  setTimeout(() => symInput.focus(), 30);
+}
+
+function confirmSymbol() {
+  const syms = symInput.value.trim().split(',').map(s => s.trim()).filter(Boolean);
+  if (!syms.length) { hideSymDialog(); return; }
+  if (pendingTrans.editId !== undefined) {
+    const t = transitions.get(pendingTrans.editId);
+    if (t) t.symbols = new Set(syms);
+  } else {
+    const t = findOrCreateTransition(pendingTrans.fromId, pendingTrans.toId);
+    for (const sym of syms) t.symbols.add(sym);
+  }
+  hideSymDialog(); updateStats(); render();
+}
+
+symInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter') confirmSymbol();
+  if (e.key === 'Escape') hideSymDialog();
+});
+function hideSymDialog() { symDialog.style.display = 'none'; pendingTrans = null; }
+
+function insertEpsilon() {
+  const inp = document.getElementById('sym-input');
+  const v = inp.value.trim();
+  inp.value = v ? v + ', ε' : 'ε';
+  inp.focus();
+}
+
+// ── Batch test ──
+function openBatchModal() {
+  const side = document.getElementById('batch-side');
+  if (side.classList.contains('open')) { closeBatchModal(); return; }
+  document.getElementById('batch-results').innerHTML = '';
+  document.getElementById('batch-summary').textContent = '';
+  side.classList.add('open');
+  document.getElementById('batch-input').focus();
+}
+function closeBatchModal() {
+  document.getElementById('batch-side').classList.remove('open');
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeBatchModal();
+}, true);
+
+function runBatch() {
+  if (initialState === null) { showToast('Defina um estado inicial primeiro.'); return; }
+  const raw = document.getElementById('batch-input').value;
+  const lines = raw.split('\n').map(l => l === 'ε' ? '' : l);
+  if (!lines.length) return;
+
+  const container = document.getElementById('batch-results');
+  container.innerHTML = '';
+  let accepted = 0;
+
+  lines.forEach(line => {
+    const res = simulate(line);
+    if (!res) return;
+    if (res.accepted) accepted++;
+
+    const row = document.createElement('div');
+    row.className = 'batch-row';
+
+    const str = document.createElement('span');
+    str.className = 'batch-str' + (line === '' ? ' empty' : '');
+    str.textContent = line === '' ? 'ε (vazia)' : line;
+
+    const badge = document.createElement('span');
+    badge.className = 'batch-badge ' + (res.accepted ? 'accept' : 'reject');
+    badge.textContent = res.accepted ? 'ACEITO' : 'REJEITADO';
+
+    row.appendChild(str);
+    row.appendChild(badge);
+    container.appendChild(row);
+  });
+
+  const total = lines.length;
+  document.getElementById('batch-summary').textContent =
+    `${accepted} aceita${accepted !== 1 ? 's' : ''} · ${total - accepted} rejeitada${total - accepted !== 1 ? 's' : ''} · ${total} total`;
+}
+
+// ── Sidebar ──
+function updateSidebar() {
+  const el = document.getElementById('sidebar-content');
+  if (!selected) {
+    el.innerHTML = '<div class="sidebar-empty">Clique duplo no canvas para adicionar um estado.<br><br>Use <b>Conectar</b> para criar transições.</div>';
+    return;
+  }
+  if (selected.type === 'state') {
+    const s = states.get(selected.id);
+    if (!s) { el.innerHTML = ''; return; }
+    el.innerHTML = `
+      <div class="sidebar-label">Estado</div>
+      <div class="field-group">
+        <label class="field-label">Nome</label>
+        <input class="field-input" id="state-name-input" value="${s.label}" maxlength="10" spellcheck="false">
+      </div>
+      <div class="toggle-row"><span>Estado final</span>
+        <label class="toggle"><input type="checkbox" id="tog-final" ${s.isFinal?'checked':''}><span class="toggle-slider"></span></label>
+      </div>
+      <div class="toggle-row"><span>Estado inicial</span>
+        <label class="toggle"><input type="checkbox" id="tog-init" ${s.id===initialState?'checked':''}><span class="toggle-slider"></span></label>
+      </div>
+      <div class="badge-row" style="margin-top:10px">
+        ${s.id===initialState?'<span class="badge purple">→ inicial</span>':''}
+        ${s.isFinal?'<span class="badge green">final</span>':''}
+      </div>`;
+    document.getElementById('state-name-input').addEventListener('input', e => { s.label = e.target.value||('q'+s.id); render(); });
+    document.getElementById('tog-final').addEventListener('change', e => { s.isFinal = e.target.checked; updateSidebar(); updateStats(); render(); });
+    document.getElementById('tog-init').addEventListener('change',  e => { initialState = e.target.checked ? s.id : null; updateSidebar(); updateStats(); render(); });
+  } else if (selected.type === 'transition') {
+    const t = transitions.get(selected.id);
+    if (!t) { el.innerHTML = ''; return; }
+    const from = states.get(t.from), to = states.get(t.to);
+    el.innerHTML = `
+      <div class="sidebar-label">Transição</div>
+      <div style="font-size:13px;color:var(--text-muted);margin-bottom:10px">${from?.label||'?'} → ${to?.label||'?'}</div>
+      <div class="field-group">
+        <label class="field-label">Símbolos (separados por vírgula)</label>
+        <input class="field-input" id="trans-sym-input" value="${[...t.symbols].join(', ')}" spellcheck="false">
+      </div>
+      <div class="sym-hint" style="font-size:11px;color:var(--text-muted)">Use ε para transição vazia</div>`;
+    document.getElementById('trans-sym-input').addEventListener('change', e => {
+      t.symbols = new Set(e.target.value.split(',').map(s=>s.trim()).filter(Boolean));
+      updateStats(); render();
+    });
+  }
+}
+
+function updateStats() {
+  document.getElementById('stat-states').textContent = states.size;
+  document.getElementById('stat-trans').textContent  = transitions.size;
+  const alphabet = new Set();
+  let isNFA = false;
+  const seen = new Map();
+  for (const t of transitions.values()) {
+    for (const sym of t.symbols) {
+      if (sym === 'ε') isNFA = true; else alphabet.add(sym);
+      const k = `${t.from}__${sym}`;
+      seen.set(k, (seen.get(k)||0)+1);
+      if (seen.get(k) > 1) isNFA = true;
+    }
+  }
+  document.getElementById('stat-alphabet').textContent = alphabet.size ? [...alphabet].sort().join(', ') : '—';
+  const tb = document.getElementById('stat-type');
+  tb.textContent = isNFA ? 'AFN' : 'AFD';
+  tb.className = 'type-badge' + (isNFA ? ' nfa' : '');
+}
+
+// ── Simulation ──
+function buildTMap() {
+  const map = new Map();
+  for (const s of states.keys()) map.set(s, new Map());
+  for (const t of transitions.values())
+    for (const sym of t.symbols) {
+      if (!map.get(t.from).has(sym)) map.get(t.from).set(sym, new Set());
+      map.get(t.from).get(sym).add(t.to);
+    }
+  return map;
+}
+function epsClosure(set, tmap) {
+  const r = new Set(set); const stk = [...set];
+  while (stk.length) { const s = stk.pop(); for (const n of (tmap.get(s)?.get('ε')||[])) if (!r.has(n)){r.add(n);stk.push(n);} }
+  return r;
+}
+function simulate(input) {
+  if (initialState === null) return null;
+  const tmap = buildTMap();
+  const steps = [];
+  let cur = epsClosure(new Set([initialState]), tmap);
+  steps.push({ activeStates: new Set(cur), symbol: null, usedTransition: null, stepIdx: 0 });
+  for (let i = 0; i < input.length; i++) {
+    const sym = input[i];
+    const nxt = new Set();
+    let usedTrans = null;
+    for (const sid of cur) for (const d of (tmap.get(sid)?.get(sym)||[])) nxt.add(d);
+    for (const t of transitions.values()) if (cur.has(t.from) && t.symbols.has(sym)) { usedTrans = t.id; break; }
+    cur = epsClosure(nxt, tmap);
+    steps.push({ activeStates: new Set(cur), symbol: sym, usedTransition: usedTrans, stepIdx: i+1 });
+  }
+  return { steps, accepted: [...cur].some(id => states.get(id)?.isFinal), input };
+}
+function runTest() {
+  stopSim();
+  const res = simulate(document.getElementById('test-input').value);
+  if (!res) { showToast('Defina um estado inicial primeiro.'); return; }
+  const rd = document.getElementById('result-display');
+  rd.textContent = res.accepted ? 'ACEITO' : 'REJEITADO';
+  rd.className = 'result-display show ' + (res.accepted ? 'accept' : 'reject');
+  rd.style.opacity = '1';
+  simSteps = res.steps; simStep = res.steps.length - 1; simActive = true; render();
+  setTimeout(() => { simActive = false; render(); }, 2000);
+}
+function startStepMode() {
+  const res = simulate(document.getElementById('test-input').value);
+  if (!res) { showToast('Defina um estado inicial primeiro.'); return; }
+  simSteps = res.steps; simStep = 0; simActive = true; updateStepUI(); render();
+}
+function stepForward() { if (simActive && simSteps && simStep < simSteps.length-1) { simStep++; updateStepUI(); render(); } }
+function stepBack()    { if (simActive && simSteps && simStep > 0)                 { simStep--; updateStepUI(); render(); } }
+function updateStepUI() {
+  if (!simSteps) return;
+  document.getElementById('step-indicator').textContent = `Passo ${simStep}/${simSteps.length-1}`;
+  const rd = document.getElementById('result-display');
+  if (simStep === simSteps.length-1) {
+    const acc = [...simSteps[simStep].activeStates].some(id => states.get(id)?.isFinal);
+    rd.textContent = acc ? 'ACEITO' : 'REJEITADO';
+    rd.className = 'result-display show ' + (acc ? 'accept' : 'reject');
+    rd.style.opacity = '1';
+  } else { rd.style.opacity = '0'; }
+}
+function stopSim() { simActive = false; simSteps = null; simStep = 0; document.getElementById('step-indicator').textContent = ''; }
+
+// ── UI controls ──
+function setMode(m) {
+  mode = m; connectFrom = null; previewWorldPos = null;
+  document.getElementById('btn-select').classList.toggle('active', m==='select');
+  document.getElementById('btn-connect').classList.toggle('active', m==='connect');
+  canvas.className = 'mode-' + m + (spaceDown ? ' panning' : '');
+  render();
+}
+function clearAll() {
+  if (!confirm('Limpar todo o autômato?')) return;
+  states.clear(); transitions.clear(); initialState = null; selected = null; connectFrom = null; stopSim();
+  updateSidebar(); updateStats(); render();
+}
+let currentTheme = 'auto';
+function toggleTheme() {
+  const themes = ['auto','light','dark'], idx = themes.indexOf(currentTheme);
+  currentTheme = themes[(idx+1)%3];
+  const root = document.documentElement;
+  if (currentTheme === 'auto') root.removeAttribute('data-theme');
+  else root.setAttribute('data-theme', currentTheme);
+  render();
+}
+function exportPython() {
+  const ids = [...states.keys()];
+  if (!ids.length) { showToast('Nenhum estado para exportar.'); return; }
+  const labels = id => `"${states.get(id).label}"`;
+  const alphabet = new Set();
+  for (const t of transitions.values()) for (const s of t.symbols) if (s!=='ε') alphabet.add(s);
+  const isNFA = [...transitions.values()].some(t=>t.symbols.has('ε')) ||
+    (() => { const seen=new Map(); for(const t of transitions.values()) for(const s of t.symbols){const k=`${t.from}_${s}`;if(seen.has(k))return true;seen.set(k,1);}return false; })();
+  let code = `from automato import ${isNFA?'AFN':'AFD'}\n\nautomato = ${isNFA?'AFN':'AFD'}(\n`;
+  code += `    estados={${ids.map(labels).join(', ')}},\n`;
+  code += `    alfabeto={${[...alphabet].sort().map(s=>`"${s}"`).join(', ')}},\n`;
+  code += `    estado_inicial="${initialState!==null?states.get(initialState).label:''}",\n`;
+  code += `    estados_finais={${ids.filter(id=>states.get(id).isFinal).map(labels).join(', ')}},\n)\n`;
+  for (const t of transitions.values()) {
+    const fl = states.get(t.from).label, tl = states.get(t.to).label;
+    for (const s of t.symbols) code += `automato.adicionar_transicao("${fl}", "${s}", "${tl}")\n`;
+  }
+  code += `\naceito, caminho = automato.processar("sua_string")\nprint("Aceito" if aceito else "Rejeitado")\n`;
+  navigator.clipboard.writeText(code).then(
+    () => showToast('Código Python copiado!'),
+    () => { const w = window.open('','_blank'); w.document.write('<pre style="padding:20px;font-family:monospace">'+code+'</pre>'); }
+  );
+}
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── Init ──
+const ro = new ResizeObserver(resizeCanvas);
+ro.observe(canvas);
+resizeCanvas();
+updateStats();
+
+(function seed() {
+  const r = canvas.getBoundingClientRect();
+  const cx = (r.width/2 - panX)/zoom, cy = (r.height/2 - panY)/zoom;
+  const s0 = addState(cx-120, cy), s1 = addState(cx+20, cy), s2 = addState(cx+160, cy);
+  s2.isFinal = true; selected = null;
+  const t1 = findOrCreateTransition(s0.id,s1.id); t1.symbols.add('a');
+  const t2 = findOrCreateTransition(s1.id,s2.id); t2.symbols.add('b');
+  const t3 = findOrCreateTransition(s0.id,s0.id); t3.symbols.add('b');
+  const t4 = findOrCreateTransition(s1.id,s1.id); t4.symbols.add('a');
+  const t5 = findOrCreateTransition(s2.id,s1.id); t5.symbols.add('a');
+  const t6 = findOrCreateTransition(s2.id,s0.id); t6.symbols.add('b');
+  updateSidebar(); updateStats(); render();
+})();
+</script>
