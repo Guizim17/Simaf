@@ -5,7 +5,7 @@ a = Analysis(
     ['simaf\\app.py'],
     pathex=[],
     binaries=[],
-    datas=[('simaf/editor.html', '.')],
+    datas=[('simaf/editor.html', '.'), ('simaf/motor.js', '.')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},

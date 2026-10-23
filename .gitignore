@@ -1,0 +1,7 @@
+# Gerados pelo PyInstaller (recriados a cada build)
+build/
+dist/
+
+# Cache do Python
+__pycache__/
+*.pyc

@@ -1,3 +1,4 @@
+<meta charset="utf-8">
 <title>Simulador de Autômatos Finitos</title>
 <style>
 :root {
@@ -47,7 +48,7 @@
 html,body{height:100%;overflow:hidden}
 body{font-family:var(--font-ui);background:var(--bg);color:var(--text);display:flex;flex-direction:column;user-select:none}
 
-/* ── Toolbar ── */
+/*    Toolbar    */
 #toolbar{height:52px;background:var(--toolbar-bg);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:4px;padding:0 12px;flex-shrink:0;z-index:10;box-shadow:var(--shadow)}
 .toolbar-logo{font-family:var(--font-mono);font-size:13px;font-weight:600;color:var(--accent);letter-spacing:-.3px;margin-right:8px;padding-right:12px;border-right:1px solid var(--border)}
 .tb-sep{width:1px;height:24px;background:var(--border);margin:0 6px}
@@ -60,17 +61,18 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);display:f
 .tb-spacer{flex:1}
 #zoom-label{font-size:12px;color:var(--text-muted);font-family:var(--font-mono);min-width:40px;text-align:center;cursor:default}
 
-/* ── Main ── */
+/*    Main    */
 #main{flex:1;display:flex;overflow:hidden;position:relative}
 #canvas-wrap{flex:1;position:relative;overflow:hidden}
 #canvas{display:block;width:100%;height:100%;touch-action:none}
 #canvas.mode-select{cursor:default}
 #canvas.mode-connect{cursor:crosshair}
+#canvas.mode-state{cursor:copy}
 #canvas.panning{cursor:grab}
 #canvas.panning-active{cursor:grabbing}
 #canvas.dragging{cursor:grabbing}
 
-/* ── Sidebar ── */
+/*    Sidebar    */
 #sidebar{width:220px;background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
 .sidebar-section{padding:14px 14px 10px;border-bottom:1px solid var(--border)}
 .sidebar-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:10px}
@@ -100,7 +102,7 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);display:f
 .type-badge{display:inline-block;font-size:11px;font-weight:700;font-family:var(--font-mono);padding:3px 8px;border-radius:4px;background:var(--accent-subtle);color:var(--accent);border:1px solid var(--accent)}
 .type-badge.nfa{background:#fdf8ea;color:var(--warn);border-color:var(--warn)}
 
-/* ── Test bar ── */
+/*    Test bar    */
 #testbar{height:54px;background:var(--surface);border-top:1px solid var(--border);display:flex;align-items:center;gap:8px;padding:0 16px;flex-shrink:0}
 .test-label{font-size:12px;color:var(--text-muted);white-space:nowrap}
 #test-input{flex:1;max-width:320px;padding:7px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface-2);color:var(--text);font-family:var(--font-mono);font-size:13px;outline:none;transition:border-color .12s}
@@ -115,7 +117,7 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);display:f
 #result-display.reject{background:var(--danger-subtle);color:var(--danger)}
 .step-indicator{font-size:12px;color:var(--text-muted);font-family:var(--font-mono);min-width:80px}
 
-/* ── Context menu ── */
+/*    Context menu    */
 #ctx-menu{position:fixed;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-lg);min-width:160px;z-index:1000;overflow:hidden;display:none}
 .ctx-item{padding:8px 14px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:8px;color:var(--text);transition:background .1s}
 .ctx-item:hover{background:var(--surface-2)}
@@ -123,7 +125,7 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);display:f
 .ctx-item.danger:hover{background:var(--danger-subtle)}
 .ctx-sep{height:1px;background:var(--border);margin:3px 0}
 
-/* ── Symbol dialog ── */
+/*    Symbol dialog    */
 #sym-dialog{position:fixed;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-lg);padding:14px;z-index:1000;min-width:200px;display:none}
 .sym-dialog-title{font-size:12px;color:var(--text-muted);margin-bottom:8px}
 .sym-dialog-row{display:flex;gap:6px}
@@ -134,7 +136,7 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);display:f
 .sym-eps:hover{background:var(--accent-subtle);border-color:var(--accent);color:var(--accent)}
 .sym-hint{font-size:11px;color:var(--text-muted);margin-top:6px}
 
-/* ── Batch test side panel ── */
+/*    Batch test side panel    */
 #batch-side{width:0;overflow:hidden;flex-shrink:0;transition:width .22s ease;display:flex;flex-direction:column;background:var(--surface);border-right:1px solid var(--border)}
 #batch-side.open{width:290px}
 .batch-panel{display:flex;flex-direction:column;width:290px;height:100%;overflow:hidden}
@@ -157,17 +159,31 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);display:f
 .batch-badge.reject{background:var(--danger-subtle);color:var(--danger)}
 .batch-summary{font-size:12px;color:var(--text-muted);margin-top:2px}
 
-/* ── Toast ── */
+/*    Toast    */
 #toast{position:fixed;bottom:70px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 16px;font-size:13px;box-shadow:var(--shadow-lg);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:999;white-space:nowrap}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-/* ── Hint badge ── */
+/*    Help modal    */
+#help-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;z-index:1001;padding:16px}
+#help-overlay.open{display:flex}
+.help-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-lg);width:min(560px,100%);max-height:calc(100vh - 32px);display:flex;flex-direction:column;overflow:hidden}
+.help-body{overflow-y:auto;padding:4px 16px 16px}
+.help-table{width:100%;border-collapse:collapse;font-size:13px}
+.help-table th{text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);padding:14px 0 6px;border-bottom:1px solid var(--border)}
+.help-table td{padding:6px 0;border-bottom:1px solid var(--border);color:var(--text);vertical-align:top}
+.help-table td:first-child{padding-right:16px}
+.help-table td:last-child{color:var(--text-muted);text-align:right}
+.help-table .muted{color:var(--text-muted);font-size:12px}
+.help-table code{font-family:var(--font-mono);font-size:12px;background:var(--surface-2);padding:1px 5px;border-radius:4px}
+kbd{font-family:var(--font-mono);font-size:11px;background:var(--surface-2);border:1px solid var(--border);border-bottom-width:2px;border-radius:4px;padding:1px 5px;color:var(--text)}
+
+/*    Hint badge    */
 #pan-hint{position:absolute;bottom:12px;right:12px;font-size:11px;color:var(--text-muted);background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:4px 9px;pointer-events:none;opacity:.7}
 </style>
 
 <div id="app" style="display:flex;flex-direction:column;height:100vh;">
   <header id="toolbar">
-    <span class="toolbar-logo">AF·SIM</span>
+    <span class="toolbar-logo">SIMAF</span>
 
     <button class="tb-btn active" id="btn-select" onclick="setMode('select')" title="Selecionar / Mover (S)">
       <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M2 1l12 6-6 1-3 6z"/></svg>
@@ -180,9 +196,41 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);display:f
 
     <div class="tb-sep"></div>
 
-    <button class="tb-btn" onclick="addStateAt()" title="Adicionar estado (A)">
+    <button class="tb-btn" id="btn-state" onclick="setMode('state')" title="Adicionar estados: clique onde colocar (E)">
       <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="5"/><path d="M8 5v6M5 8h6"/></svg>
       Estado
+    </button>
+
+    <div class="tb-sep"></div>
+
+    <button class="tb-btn icon" onclick="undo()" title="Desfazer (Ctrl+Z)">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 3L2 6l3 3"/><path d="M2 6h7a4 4 0 010 8H6"/></svg>
+    </button>
+    <button class="tb-btn icon" onclick="redo()" title="Refazer (Ctrl+Shift+Z ou Ctrl+Y)">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M11 3l3 3-3 3"/><path d="M14 6H7a4 4 0 000 8h3"/></svg>
+    </button>
+
+    <div class="tb-sep"></div>
+
+    <button class="tb-btn" onclick="abrirArquivo()" title="Abrir autômato (Ctrl+O)">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h4l1.5 1.5H14v7.5H2z"/></svg>
+      Abrir
+    </button>
+    <button class="tb-btn" onclick="salvarArquivo()" title="Salvar autômato (Ctrl+S)">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 2h8l2 2v10H3z"/><path d="M5 2v4h5V2M5 14v-4h6v4"/></svg>
+      Salvar
+    </button>
+    <input type="file" id="file-input" accept=".json,application/json" style="display:none">
+
+    <div class="tb-sep"></div>
+
+    <button class="tb-btn" onclick="converterParaAFD()" title="Converter AFN em AFD equivalente (construção de subconjuntos)">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8h10M9 5l3 3-3 3"/></svg>
+      AFN → AFD
+    </button>
+    <button class="tb-btn" onclick="minimizarAutomato()" title="Minimizar AFD (remove estados inalcançáveis, mortos e equivalentes)">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 2l4 4M14 2l-4 4M2 14l4-4M14 14l-4-4"/><rect x="6" y="6" width="4" height="4"/></svg>
+      Minimizar
     </button>
 
     <div class="tb-sep"></div>
@@ -196,7 +244,7 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);display:f
 
     <div class="tb-sep"></div>
 
-    <!-- Zoom controls -->
+    <!-- Controle de Zoom -->
     <button class="tb-btn icon" onclick="changeZoom(1/1.25)" title="Diminuir zoom (-)">
       <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="8" x2="13" y2="8"/></svg>
     </button>
@@ -209,15 +257,13 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);display:f
     </button>
 
     <div class="tb-spacer"></div>
-
-    <button class="tb-btn" onclick="exportPython()" title="Exportar código Python">
-      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M5 6h4M5 9h6"/></svg>
-      Exportar Python
-    </button>
     <button class="tb-btn icon danger" onclick="clearAll()" title="Limpar tudo">
       <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4h10M6 4V3h4v1M5 4l.5 8h5l.5-8"/></svg>
     </button>
     <div class="tb-sep"></div>
+    <button class="tb-btn icon" onclick="toggleHelp()" title="Comandos e atalhos (?)">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="6.5"/><path d="M6.2 6.2a1.9 1.9 0 113 1.5c-.7.4-1.2.9-1.2 1.6v.3"/><circle cx="8" cy="11.6" r=".4" fill="currentColor"/></svg>
+    </button>
     <button class="tb-btn icon" onclick="toggleTheme()" title="Alternar tema">
       <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 1.5a5.5 5.5 0 010 11V2.5z"/></svg>
     </button>
@@ -243,7 +289,7 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);display:f
     </div>
     <div id="canvas-wrap">
       <canvas id="canvas" class="mode-select"></canvas>
-      <div id="pan-hint">Espaço + arrastar para mover · Scroll para zoom</div>
+      <div id="pan-hint">Botão direito + arrastar para mover · Scroll para zoom · ? para ajuda</div>
     </div>
 
     <aside id="sidebar">
@@ -286,12 +332,12 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);display:f
 
 <div id="ctx-menu">
   <div class="ctx-item" id="ctx-rename" onclick="ctxRename()">
-    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12l2-2 6-6 2 2-6 6-2 2zm8-10l2 2"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil preview-icon"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>
     Renomear
   </div>
   <div class="ctx-item" id="ctx-toggle-final" onclick="ctxToggleFinal()">
     <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="5"/><circle cx="8" cy="8" r="3"/></svg>
-    Marcar como final
+    <span id="ctx-toggle-final-label">Marcar como final</span>
   </div>
   <div class="ctx-item" id="ctx-set-initial" onclick="ctxSetInitial()">
     <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><path d="M3 8l5-5v10z"/></svg>
@@ -299,7 +345,7 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);display:f
   </div>
   <div class="ctx-sep"></div>
   <div class="ctx-item" id="ctx-edit-sym" onclick="ctxEditSymbol()" style="display:none">
-    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12l2-2 6-6 2 2-6 6-2 2z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil preview-icon"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>
     Editar símbolo
   </div>
   <div class="ctx-item danger" id="ctx-delete" onclick="ctxDelete()">
@@ -320,32 +366,80 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);display:f
 
 <div id="toast"></div>
 
+<div id="help-overlay" onclick="if (event.target === this) toggleHelp(false)">
+  <div class="help-panel" role="dialog" aria-labelledby="help-title">
+    <div class="batch-header">
+      <span class="batch-title" id="help-title">Comandos</span>
+      <button class="batch-close" onclick="toggleHelp(false)">×</button>
+    </div>
+    <div class="help-body">
+      <table class="help-table">
+        <tr><th colspan="2">Mouse</th></tr>
+        <tr><td>Clique esquerdo em estado ou transição</td><td>Selecionar</td></tr>
+        <tr><td><kbd>Shift</kbd> + clique em estado</td><td>Adicionar/remover da seleção</td></tr>
+        <tr><td>Arrastar no vazio <span class="muted">(Selecionar)</span></td><td>Quadro de seleção</td></tr>
+        <tr><td>Arrastar estado(s) selecionado(s)</td><td>Mover</td></tr>
+        <tr><td>Arrastar o rótulo de uma transição</td><td>Curvar a seta</td></tr>
+        <tr><td>Clique duplo no vazio <span class="muted">(Selecionar)</span></td><td>Novo estado</td></tr>
+        <tr><td>Clique <span class="muted">(ferramenta Estado)</span></td><td>Colocar estado no local</td></tr>
+        <tr><td>Clique na origem, depois no destino <span class="muted">(Conectar)</span></td><td>Nova transição</td></tr>
+        <tr><td>Botão direito + arrastar</td><td>Mover a câmera</td></tr>
+        <tr><td>Botão do meio ou <kbd>Espaço</kbd> + arrastar</td><td>Mover a câmera</td></tr>
+        <tr><td>Clique direito em estado ou transição</td><td>Selecionar e abrir menu</td></tr>
+        <tr><td>Roda do mouse</td><td>Zoom</td></tr>
+        <tr><th colspan="2">Teclado</th></tr>
+        <tr><td><kbd>S</kbd></td><td>Ferramenta Selecionar</td></tr>
+        <tr><td><kbd>E</kbd></td><td>Ferramenta Estado</td></tr>
+        <tr><td><kbd>C</kbd></td><td>Ferramenta Conectar</td></tr>
+        <tr><td><kbd>Ctrl</kbd> + <kbd>A</kbd></td><td>Selecionar todos os estados</td></tr>
+        <tr><td><kbd>Delete</kbd> / <kbd>Backspace</kbd></td><td>Excluir seleção</td></tr>
+        <tr><td><kbd>Ctrl</kbd> + <kbd>Z</kbd></td><td>Desfazer</td></tr>
+        <tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Z</kbd> / <kbd>Ctrl</kbd> + <kbd>Y</kbd></td><td>Refazer</td></tr>
+        <tr><td><kbd>Ctrl</kbd> + <kbd>S</kbd></td><td>Salvar</td></tr>
+        <tr><td><kbd>Ctrl</kbd> + <kbd>O</kbd></td><td>Abrir</td></tr>
+        <tr><td><kbd>F</kbd></td><td>Ajustar à tela</td></tr>
+        <tr><td><kbd>+</kbd> / <kbd>-</kbd></td><td>Zoom</td></tr>
+        <tr><td><kbd>Esc</kbd></td><td>Cancelar, limpar seleção, voltar a Selecionar</td></tr>
+        <tr><td><kbd>?</kbd></td><td>Abrir/fechar esta ajuda</td></tr>
+        <tr><th colspan="2">Símbolos</th></tr>
+        <tr><td><code>ε</code> na transição</td><td>Transição vazia (AFN)</td></tr>
+        <tr><td>Vírgula no rótulo: <code>a, b</code></td><td>Vários símbolos na mesma seta</td></tr>
+        <tr><td>Espaços na palavra: <code>if x else</code></td><td>Separar símbolos de vários caracteres</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="motor.js" charset="utf-8"></script>
 <script>
-// ── Constants ──
+//    Constants   
 const STATE_R = 30;
 const ARROW_SIZE = 10;
 const MIN_ZOOM = 0.25;
 const MAX_ZOOM = 3;
 
-// ── Tamanho do canvas) ──
+//    Tamanho do canvas   
 const WORLD_W = 2400;   // largura em pixels
 const WORLD_H = 1600;   // altura em pixels 
 
-// ── Data model ──
+//    Data model   
 let states = new Map();      // id → {id, x, y, label, isFinal}
 let transitions = new Map(); // id → {id, from, to, symbols: Set<string>}
 let initialState = null;
 let nextStateId = 0;
 let nextTransId = 0;
 
-// ── View transform (world → screen) ──
+//    View transform (world → screen)   
 // screen = world * zoom + pan
 let panX = 0, panY = 0, zoom = 1;
 
-// ── Interaction state ──
+//    Interaction state   
 let mode = 'select';
-let selected = null;
-let dragging = null;        // {stateId, ox, oy}
+let selected = null;          // item principal (painel lateral): {type, id}
+let selStates = new Set();   // todos os estados selecionados (seleção múltipla)
+let dragging = null;        // {start: {x,y}, orig: Map(id → {x,y}), snap}
+let marquee = null;         // quadro de seleção: {x0, y0, x1, y1, base: Set}
+let rightPanMoved = false;  // botão direito arrastou (não abrir o menu de contexto)
 let draggingCurve = null;   // {transId} — arrastar ponto de controle da seta
 let isPanning = false;
 let panStart = null;
@@ -354,15 +448,15 @@ let connectFrom = null;
 let previewWorldPos = null;
 let ctxTarget = null;
 
-// ── Simulation ──
+//    Simulation   
 let simSteps = null, simStep = 0, simActive = false;
 
-// ── Canvas ──
+//    Canvas   
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 let dpr = 1;
 
-// ── Coordinate helpers ──
+//    Coordinate helpers   
 function screenToWorld(sx, sy) {
   return { x: (sx - panX) / zoom, y: (sy - panY) / zoom };
 }
@@ -375,7 +469,7 @@ function screenPos(e) {
   return { x: e.clientX - r.left, y: e.clientY - r.top };
 }
 
-// ── Resize ──
+//    Resize   
 function resizeCanvas() {
   dpr = window.devicePixelRatio || 1;
   const r = canvas.getBoundingClientRect();
@@ -389,7 +483,7 @@ function cssVar(n) {
   return getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 }
 
-// ── Render ──
+//    Render   
 function render() {
   const W = canvas.getBoundingClientRect().width;
   const H = canvas.getBoundingClientRect().height;
@@ -416,9 +510,37 @@ function render() {
 
   for (const s of states.values()) drawState(s);
 
+  if (mode === 'state' && previewWorldPos && !hitState(previewWorldPos.x, previewWorldPos.y))
+    drawGhostState(previewWorldPos);
+  if (marquee) drawMarquee();
+
   ctx.restore();
 
   updateZoomLabel();
+}
+
+// Prévia do estado na ferramenta "Estado"
+function drawGhostState(p) {
+  ctx.save();
+  ctx.globalAlpha = 0.6;
+  ctx.beginPath(); ctx.arc(p.x, p.y, STATE_R, 0, Math.PI * 2);
+  ctx.fillStyle = cssVar('--accent-subtle'); ctx.fill();
+  ctx.setLineDash([5 / zoom, 4 / zoom]);
+  ctx.strokeStyle = cssVar('--accent'); ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.restore();
+}
+
+function drawMarquee() {
+  const x = Math.min(marquee.x0, marquee.x1), y = Math.min(marquee.y0, marquee.y1);
+  const w = Math.abs(marquee.x1 - marquee.x0), h = Math.abs(marquee.y1 - marquee.y0);
+  ctx.save();
+  ctx.fillStyle = cssVar('--accent-subtle'); ctx.globalAlpha = 0.5;
+  ctx.fillRect(x, y, w, h);
+  ctx.globalAlpha = 1;
+  ctx.strokeStyle = cssVar('--accent'); ctx.lineWidth = 1 / zoom;
+  ctx.setLineDash([4 / zoom, 3 / zoom]);
+  ctx.strokeRect(x, y, w, h);
+  ctx.restore();
 }
 
 function drawGrid(W, H) {
@@ -464,7 +586,7 @@ function drawWorldBorder() {
 }
 
 function drawState(s) {
-  const isSel = selected?.type === 'state' && selected.id === s.id;
+  const isSel = selStates.has(s.id);
   const isInit = s.id === initialState;
   const isSimActive = simActive && simSteps && simStep < simSteps.length &&
     simSteps[simStep].activeStates?.has(s.id);
@@ -505,8 +627,14 @@ function drawState(s) {
     drawArrowhead(x - r - 2, y, 0, cssVar('--initial-color'), 8);
   }
 
+  // Reduz a fonte para rótulos longos (ex.: '{q0,q1,q2}') caberem no círculo
   ctx.fillStyle = cssVar('--text');
-  ctx.font = `600 13px ${cssVar('--font-mono')}`;
+  let fontSize = 13;
+  ctx.font = `600 ${fontSize}px ${cssVar('--font-mono')}`;
+  while (fontSize > 8 && ctx.measureText(s.label).width > (r - 6) * 2) {
+    fontSize--;
+    ctx.font = `600 ${fontSize}px ${cssVar('--font-mono')}`;
+  }
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   ctx.fillText(s.label, x, y);
 }
@@ -517,8 +645,7 @@ function drawTransition(t) {
   if (!from || !to) return;
 
   const isSel = selected?.type === 'transition' && selected.id === t.id;
-  const isHL = simActive && simSteps && simStep > 0 && simStep < simSteps.length &&
-    simSteps[simStep].usedTransition === t.id;
+  const isHL = isTransitionHighlighted(t);
 
   const dx = to.x - from.x, dy = to.y - from.y;
   const dist = Math.hypot(dx, dy);
@@ -555,8 +682,10 @@ function drawSelfLoop(t) {
   const s = states.get(t.from);
   if (!s) return;
   const isSel = selected?.type === 'transition' && selected.id === t.id;
+  const isHL = isTransitionHighlighted(t);
   const {x, y} = s, r = STATE_R;
-  const color = isSel ? cssVar('--accent') : cssVar('--edge-color');
+  const color = isSel ? cssVar('--accent') : isHL ? cssVar('--highlight') : cssVar('--edge-color');
+  if (isHL) { ctx.shadowColor = cssVar('--highlight'); ctx.shadowBlur = 10 / zoom; }
 
   ctx.beginPath();
   ctx.save();
@@ -564,10 +693,17 @@ function drawSelfLoop(t) {
   ctx.scale(1.2, 0.9);
   ctx.arc(0, -18, 18, 0, Math.PI * 2);
   ctx.restore();
-  ctx.strokeStyle = color; ctx.lineWidth = isSel ? 2.5 : 1.5; ctx.stroke();
+  ctx.strokeStyle = color; ctx.lineWidth = (isSel || isHL) ? 2.5 : 1.5; ctx.stroke();
+  ctx.shadowBlur = 0;
 
   drawArrowhead(x + 14, y - r + 2, Math.PI / 2, color, 8);
-  drawEdgeLabel(x, y - r - 36, [...t.symbols].join(', '), isSel, false);
+  drawEdgeLabel(x, y - r - 36, [...t.symbols].join(', '), isSel, isHL);
+}
+
+// Destaca todas as transições percorridas no passo atual (todos os ramos do AFN)
+function isTransitionHighlighted(t) {
+  return simActive && simSteps && simStep < simSteps.length &&
+    simSteps[simStep].usedTransitions.has(t.id);
 }
 
 function drawEdgeLabel(x, y, text, isSel, isHL) {
@@ -599,7 +735,7 @@ function drawPreviewLine(from, wpos) {
   ctx.setLineDash([5, 4]); ctx.stroke(); ctx.setLineDash([]);
 }
 
-// ── Hit testing (world coords) ──
+//    Hit testing (world coords)   
 function hitState(wx, wy) {
   for (const s of states.values())
     if (Math.hypot(wx - s.x, wy - s.y) <= STATE_R) return s;
@@ -628,17 +764,40 @@ function hitTransition(wx, wy) {
   return null;
 }
 
-// ── Mouse events ──
-let mouseDownScreen = null;
+//    Seleção   
+function selectOnly(type, id) {
+  selected = { type, id };
+  selStates = type === 'state' ? new Set([id]) : new Set();
+  updateSidebar();
+}
+function clearSelection() {
+  selected = null; selStates = new Set();
+  updateSidebar();
+}
+function setStateSelection(ids) {
+  selStates = new Set(ids);
+  selected = selStates.size === 1 ? { type: 'state', id: [...selStates][0] } : null;
+  updateSidebar();
+}
+function selectAll() {
+  setStateSelection(states.keys()); render();
+}
+
+// Comandos do mouse
 let didDrag = false;
 
 canvas.addEventListener('mousedown', e => {
-  if (e.button === 1) { e.preventDefault(); startPan(e); return; }
-  if (e.button !== 0) return;
   hideCtxMenu(); hideSymDialog();
-  mouseDownScreen = screenPos(e);
   didDrag = false;
 
+  // Botão direito ou do meio: mover a câmera
+  if (e.button === 2 || e.button === 1) {
+    e.preventDefault();
+    rightPanMoved = false;
+    startPan(e);
+    return;
+  }
+  if (e.button !== 0) return;
   if (spaceDown) { startPan(e); return; }
 
   const sp = screenPos(e);
@@ -647,23 +806,37 @@ canvas.addEventListener('mousedown', e => {
   if (mode === 'select') {
     const s = hitState(wp.x, wp.y);
     if (s) {
-      selected = { type: 'state', id: s.id };
-      dragging = { stateId: s.id, ox: wp.x - s.x, oy: wp.y - s.y };
-      canvas.classList.add('dragging');
-      updateSidebar();
+      if (e.shiftKey) {
+        // Shift + clique: adiciona/remove da seleção
+        const ids = new Set(selStates);
+        ids.has(s.id) ? ids.delete(s.id) : ids.add(s.id);
+        setStateSelection(ids);
+      } else if (!selStates.has(s.id)) {
+        selectOnly('state', s.id);
+      }
+      if (selStates.has(s.id)) {
+        dragging = {
+          start: wp, snap: snapshot(),
+          orig: new Map([...selStates].map(id => [id, { x: states.get(id).x, y: states.get(id).y }])),
+        };
+        canvas.classList.add('dragging');
+      }
     } else {
       const t = hitTransition(wp.x, wp.y);
       if (t) {
-        selected = { type: 'transition', id: t.id };
-        if (t.from !== t.to) draggingCurve = { transId: t.id };
+        selectOnly('transition', t.id);
+        if (t.from !== t.to) draggingCurve = { transId: t.id, snap: snapshot() };
         canvas.classList.add('dragging');
-        updateSidebar();
       } else {
-        selected = null;
-        startPan(e);
-        updateSidebar();
+        // Vazio: começa o quadro de seleção
+        marquee = { x0: wp.x, y0: wp.y, x1: wp.x, y1: wp.y, base: e.shiftKey ? new Set(selStates) : new Set() };
+        if (!e.shiftKey) clearSelection();
       }
     }
+  } else if (mode === 'state') {
+    const s = hitState(wp.x, wp.y);
+    if (s) selectOnly('state', s.id);
+    else addState(wp.x, wp.y);
   } else if (mode === 'connect') {
     const s = hitState(wp.x, wp.y);
     if (s) {
@@ -682,7 +855,22 @@ canvas.addEventListener('mousemove', e => {
   const sp = screenPos(e);
   const wp = screenToWorld(sp.x, sp.y);
 
+  if (mode === 'state') { previewWorldPos = wp; render(); }
+  if (mode === 'connect' && connectFrom !== null) { previewWorldPos = wp; render(); }
+});
+
+canvas.addEventListener('mouseleave', () => {
+  if (mode === 'state') { previewWorldPos = null; render(); }
+});
+
+// Arrastos continuam mesmo se o mouse sair do canvas
+window.addEventListener('mousemove', e => {
+  if (!isPanning && !draggingCurve && !dragging && !marquee) return;
+  const sp = screenPos(e);
+  const wp = screenToWorld(sp.x, sp.y);
+
   if (isPanning && panStart) {
+    if (Math.hypot(e.clientX - panStart.mx, e.clientY - panStart.my) > 3) { rightPanMoved = true; hideCtxMenu(); }
     panX = panStart.px + (e.clientX - panStart.mx);
     panY = panStart.py + (e.clientY - panStart.my);
     clampPan();
@@ -706,25 +894,37 @@ canvas.addEventListener('mousemove', e => {
   }
 
   if (dragging) {
-    const s = states.get(dragging.stateId);
-    if (s) {
-      s.x = Math.max(STATE_R, Math.min(WORLD_W - STATE_R, wp.x - dragging.ox));
-      s.y = Math.max(STATE_R, Math.min(WORLD_H - STATE_R, wp.y - dragging.oy));
-      didDrag = true;
+    const dx = wp.x - dragging.start.x, dy = wp.y - dragging.start.y;
+    for (const [id, o] of dragging.orig) {
+      const s = states.get(id);
+      if (!s) continue;
+      s.x = Math.max(STATE_R, Math.min(WORLD_W - STATE_R, o.x + dx));
+      s.y = Math.max(STATE_R, Math.min(WORLD_H - STATE_R, o.y + dy));
     }
+    if (dx || dy) didDrag = true;
     render(); return;
   }
 
-  if (mode === 'connect' && connectFrom !== null) {
-    previewWorldPos = wp;
+  if (marquee) {
+    marquee.x1 = wp.x; marquee.y1 = wp.y;
+    const x0 = Math.min(marquee.x0, wp.x), x1 = Math.max(marquee.x0, wp.x);
+    const y0 = Math.min(marquee.y0, wp.y), y1 = Math.max(marquee.y0, wp.y);
+    const ids = new Set(marquee.base);
+    for (const s of states.values())
+      if (s.x >= x0 && s.x <= x1 && s.y >= y0 && s.y <= y1) ids.add(s.id);
+    setStateSelection(ids);
+    didDrag = true;
     render();
   }
 });
 
-canvas.addEventListener('mouseup', e => {
+window.addEventListener('mouseup', () => {
   if (isPanning) { stopPan(); return; }
+  if (dragging && didDrag) checkpoint(dragging.snap);
+  if (draggingCurve && didDrag) checkpoint(draggingCurve.snap);
   dragging = null;
   draggingCurve = null;
+  if (marquee) { marquee = null; render(); }
   canvas.classList.remove('dragging');
 });
 
@@ -736,17 +936,30 @@ canvas.addEventListener('dblclick', e => {
   if (!hitState(wp.x, wp.y)) addState(wp.x, wp.y);
 });
 
+// Clique direito sem arrastar: seleciona o item e abre o menu
 canvas.addEventListener('contextmenu', e => {
   e.preventDefault();
+  if (rightPanMoved) { rightPanMoved = false; return; }
   const sp = screenPos(e);
   const wp = screenToWorld(sp.x, sp.y);
   const s = hitState(wp.x, wp.y);
-  if (s) { ctxTarget = { type: 'state', id: s.id }; showCtxMenu(e.clientX, e.clientY, 'state'); return; }
+  if (s) {
+    if (!selStates.has(s.id)) selectOnly('state', s.id);
+    ctxTarget = { type: 'state', id: s.id };
+    render();
+    showCtxMenu(e.clientX, e.clientY, 'state');
+    return;
+  }
   const t = hitTransition(wp.x, wp.y);
-  if (t) { ctxTarget = { type: 'transition', id: t.id }; showCtxMenu(e.clientX, e.clientY, 'transition'); }
+  if (t) {
+    selectOnly('transition', t.id);
+    ctxTarget = { type: 'transition', id: t.id };
+    render();
+    showCtxMenu(e.clientX, e.clientY, 'transition');
+  }
 });
 
-// ── Scroll wheel zoom (toward mouse) ──
+// Zoom quando scrollar
 canvas.addEventListener('wheel', e => {
   e.preventDefault();
   const sp = screenPos(e);
@@ -754,7 +967,6 @@ canvas.addEventListener('wheel', e => {
   zoomAt(sp.x, sp.y, factor);
 }, { passive: false });
 
-// ── Pan helpers ──
 function startPan(e) {
   isPanning = true;
   panStart = { mx: e.clientX, my: e.clientY, px: panX, py: panY };
@@ -765,18 +977,35 @@ function stopPan() {
   canvas.classList.remove('panning-active');
 }
 
-// ── Spacebar pan mode ──
+// Atalhos
 document.addEventListener('keydown', e => {
-  if (e.target.tagName === 'INPUT') return;
+  const inField = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA';
+  if (e.ctrlKey || e.metaKey) {
+    const k = e.key.toLowerCase();
+    if (k === 's') { e.preventDefault(); salvarArquivo(); }
+    if (k === 'o') { e.preventDefault(); abrirArquivo(); }
+    if (inField) return;  // nos campos de texto, Ctrl+Z/Y/A agem no próprio texto
+    if (k === 'z') { e.preventDefault(); e.shiftKey ? redo() : undo(); }
+    if (k === 'y') { e.preventDefault(); redo(); }
+    if (k === 'a') { e.preventDefault(); selectAll(); }
+    return;
+  }
+  if (inField) return;
   if (e.key === ' ') { e.preventDefault(); if (!spaceDown) { spaceDown = true; canvas.classList.add('panning'); } return; }
+  if (e.key === '?') { toggleHelp(); return; }
   if (e.key === 's' || e.key === 'S') setMode('select');
   if (e.key === 'c' || e.key === 'C') setMode('connect');
-  if (e.key === 'e' || e.key === 'E') addStateAt();
+  if (e.key === 'e' || e.key === 'E') setMode('state');
   if (e.key === 'f' || e.key === 'F') fitView();
   if (e.key === '+' || e.key === '=') changeZoom(1.25);
   if (e.key === '-') changeZoom(1/1.25);
-  if (e.key === 'Escape') { connectFrom = null; selected = null; hideSymDialog(); updateSidebar(); render(); }
-  if ((e.key === 'Delete' || e.key === 'Backspace') && selected) deleteSelected();
+  if (e.key === 'Escape') {
+    if (isHelpOpen()) { toggleHelp(false); return; }
+    connectFrom = null; hideSymDialog();
+    if (mode !== 'select') setMode('select');
+    clearSelection(); render();
+  }
+  if (e.key === 'Delete' || e.key === 'Backspace') deleteSelected();
 });
 document.addEventListener('keyup', e => {
   if (e.key === ' ') {
@@ -790,7 +1019,54 @@ document.addEventListener('click', e => {
   if (!e.target.closest('#ctx-menu')) hideCtxMenu();
 });
 
-// ── Zoom functions ──
+// Desfazer / refazer
+// Cada entrada é uma cópia (JSON) do autômato antes de uma alteração.
+const HIST_MAX = 100;
+const undoStack = [], redoStack = [];
+
+function snapshot() {
+  return JSON.stringify({
+    states: [...states.values()],
+    transitions: [...transitions.values()].map(t => ({ ...t, symbols: [...t.symbols] })),
+    initialState, nextStateId, nextTransId,
+  });
+}
+function restoreSnapshot(snap) {
+  const d = JSON.parse(snap);
+  states = new Map(d.states.map(s => [s.id, s]));
+  transitions = new Map(d.transitions.map(t => [t.id, { ...t, symbols: new Set(t.symbols) }]));
+  initialState = d.initialState; nextStateId = d.nextStateId; nextTransId = d.nextTransId;
+  connectFrom = null; stopSim();
+  // Mantém selecionado o que ainda existir
+  setStateSelection([...selStates].filter(id => states.has(id)));
+  updateStats(); render();
+}
+// Registra o estado atual (ou um capturado antes) como ponto de desfazer
+function checkpoint(snap = snapshot()) {
+  if (undoStack.length && undoStack[undoStack.length - 1] === snap) return;
+  undoStack.push(snap);
+  if (undoStack.length > HIST_MAX) undoStack.shift();
+  redoStack.length = 0;
+}
+function undo() {
+  if (!undoStack.length) { showToast('Nada para desfazer.'); return; }
+  redoStack.push(snapshot());
+  restoreSnapshot(undoStack.pop());
+}
+function redo() {
+  if (!redoStack.length) { showToast('Nada para refazer.'); return; }
+  undoStack.push(snapshot());
+  restoreSnapshot(redoStack.pop());
+}
+
+// Ajuda
+function isHelpOpen() { return document.getElementById('help-overlay').classList.contains('open'); }
+function toggleHelp(force) {
+  const open = force ?? !isHelpOpen();
+  document.getElementById('help-overlay').classList.toggle('open', open);
+}
+
+//   Zoom functions   
 function zoomAt(sx, sy, factor) {
   const newZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoom * factor));
   panX = sx - (sx - panX) * (newZoom / zoom);
@@ -839,23 +1115,18 @@ function clampPan() {
   panY = Math.min(margin, Math.max(r.height - WORLD_H * zoom - margin, panY));
 }
 
-// ── State / transition management ──
+//    State / transition management   
 function addState(wx, wy) {
+  checkpoint();
   const id = nextStateId++;
-  const s = { id, x: wx, y: wy, label: nextAvailableLabel(), isFinal: false };
+  const x = Math.max(STATE_R, Math.min(WORLD_W - STATE_R, wx));
+  const y = Math.max(STATE_R, Math.min(WORLD_H - STATE_R, wy));
+  const s = { id, x, y, label: nextAvailableLabel(), isFinal: false };
   states.set(id, s);
   if (initialState === null) initialState = id;
-  selected = { type: 'state', id };
-  updateSidebar(); updateStats(); render();
+  selectOnly('state', id);
+  updateStats(); render();
   return s;
-}
-
-function addStateAt() {
-  const r = canvas.getBoundingClientRect();
-  // Place in visible center with slight random offset
-  const cx = (r.width  / 2 - panX) / zoom;
-  const cy = (r.height / 2 - panY) / zoom;
-  addState(cx + (Math.random()-.5)*80, cy + (Math.random()-.5)*80);
 }
 
 function findOrCreateTransition(fromId, toId) {
@@ -879,21 +1150,24 @@ function nextAvailableLabel() {
   return 'q' + i;
 }
 
+// Exclui todos os estados selecionados, ou a transição selecionada
 function deleteSelected() {
-  if (!selected) return;
-  if (selected.type === 'state') {
-    const id = selected.id;
-    states.delete(id);
-    if (initialState === id) initialState = states.size > 0 ? [...states.keys()][0] : null;
-    for (const [tid, t] of transitions.entries()) if (t.from === id || t.to === id) transitions.delete(tid);
-  } else {
+  if (selStates.size) {
+    checkpoint();
+    for (const id of selStates) {
+      states.delete(id);
+      for (const [tid, t] of transitions.entries()) if (t.from === id || t.to === id) transitions.delete(tid);
+    }
+    if (!states.has(initialState)) initialState = states.size > 0 ? [...states.keys()][0] : null;
+  } else if (selected?.type === 'transition') {
+    checkpoint();
     transitions.delete(selected.id);
-  }
-  selected = null;
-  updateSidebar(); updateStats(); render();
+  } else return;
+  stopSim();
+  clearSelection(); updateStats(); render();
 }
 
-// ── Context menu ──
+//    Context menu   
 const ctxMenu = document.getElementById('ctx-menu');
 
 function showCtxMenu(x, y, type) {
@@ -903,8 +1177,9 @@ function showCtxMenu(x, y, type) {
   document.getElementById('ctx-edit-sym').style.display     = type === 'transition' ? '' : 'none';
   if (type === 'state' && ctxTarget) {
     const s = states.get(ctxTarget.id);
-    if (s) document.getElementById('ctx-toggle-final').textContent =
-      (s.isFinal ? '  Desmarcar' : '  Marcar') + ' como final';
+    // Troca só o texto (no <span>), preservando o ícone
+    if (s) document.getElementById('ctx-toggle-final-label').textContent =
+      (s.isFinal ? 'Desmarcar' : 'Marcar') + ' como final';
   }
   ctxMenu.style.left = x + 'px'; ctxMenu.style.top = y + 'px';
   ctxMenu.style.display = 'block';
@@ -917,19 +1192,19 @@ function hideCtxMenu() { ctxMenu.style.display = 'none'; }
 function ctxRename() {
   if (!ctxTarget || ctxTarget.type !== 'state') return;
   hideCtxMenu();
-  selected = { type: 'state', id: ctxTarget.id };
-  updateSidebar();
+  selectOnly('state', ctxTarget.id);
+  render();
   setTimeout(() => document.getElementById('state-name-input')?.focus(), 50);
 }
 function ctxToggleFinal() {
   if (!ctxTarget || ctxTarget.type !== 'state') return;
   hideCtxMenu();
   const s = states.get(ctxTarget.id);
-  if (s) { s.isFinal = !s.isFinal; updateSidebar(); updateStats(); render(); }
+  if (s) { checkpoint(); s.isFinal = !s.isFinal; updateSidebar(); updateStats(); render(); }
 }
 function ctxSetInitial() {
   if (!ctxTarget || ctxTarget.type !== 'state') return;
-  hideCtxMenu(); initialState = ctxTarget.id; updateStats(); render();
+  hideCtxMenu(); checkpoint(); initialState = ctxTarget.id; updateSidebar(); updateStats(); render();
 }
 function ctxEditSymbol() {
   if (!ctxTarget || ctxTarget.type !== 'transition') return;
@@ -939,10 +1214,13 @@ function ctxEditSymbol() {
 }
 function ctxDelete() {
   if (!ctxTarget) return;
-  hideCtxMenu(); selected = ctxTarget; deleteSelected();
+  hideCtxMenu();
+  // Se o estado clicado faz parte de uma seleção múltipla, exclui todos
+  if (!(ctxTarget.type === 'state' && selStates.has(ctxTarget.id))) selectOnly(ctxTarget.type, ctxTarget.id);
+  deleteSelected();
 }
 
-// ── Symbol dialog ──
+//    Symbol dialog   
 const symDialog = document.getElementById('sym-dialog');
 const symInput  = document.getElementById('sym-input');
 let pendingTrans = null;
@@ -975,6 +1253,7 @@ function openSymDialogEdit(t) {
 function confirmSymbol() {
   const syms = symInput.value.trim().split(',').map(s => s.trim()).filter(Boolean);
   if (!syms.length) { hideSymDialog(); return; }
+  checkpoint();
   if (pendingTrans.editId !== undefined) {
     const t = transitions.get(pendingTrans.editId);
     if (t) t.symbols = new Set(syms);
@@ -998,7 +1277,7 @@ function insertEpsilon() {
   inp.focus();
 }
 
-// ── Batch test ──
+//    Batch test   
 function openBatchModal() {
   const side = document.getElementById('batch-side');
   if (side.classList.contains('open')) { closeBatchModal(); return; }
@@ -1050,11 +1329,27 @@ function runBatch() {
     `${accepted} aceita${accepted !== 1 ? 's' : ''} · ${total - accepted} rejeitada${total - accepted !== 1 ? 's' : ''} · ${total} total`;
 }
 
-// ── Sidebar ──
+//    Sidebar   
 function updateSidebar() {
   const el = document.getElementById('sidebar-content');
+  if (!selected && selStates.size > 1) {
+    el.innerHTML = `
+      <div class="sidebar-label">Seleção</div>
+      <div style="font-size:13px;margin-bottom:10px"><b>${selStates.size}</b> estados selecionados</div>
+      <div class="toggle-row"><span>Todos finais</span>
+        <label class="toggle"><input type="checkbox" id="tog-final-multi" ${[...selStates].every(id => states.get(id)?.isFinal)?'checked':''}><span class="toggle-slider"></span></label>
+      </div>
+      <div class="sym-hint" style="font-size:11px;color:var(--text-muted);margin-top:8px;line-height:1.5">
+        Arraste para mover todos.<br>Delete exclui a seleção.</div>`;
+    document.getElementById('tog-final-multi').addEventListener('change', e => {
+      checkpoint();
+      for (const id of selStates) { const s = states.get(id); if (s) s.isFinal = e.target.checked; }
+      updateStats(); render();
+    });
+    return;
+  }
   if (!selected) {
-    el.innerHTML = '<div class="sidebar-empty">Clique duplo no canvas para adicionar um estado.<br><br>Use <b>Conectar</b> para criar transições.</div>';
+    el.innerHTML = '<div class="sidebar-empty">Use a ferramenta <b>Estado</b> (ou clique duplo) para adicionar estados.<br><br>Use <b>Conectar</b> para criar transições.<br><br>Pressione <b>?</b> para ver todos os comandos.</div>';
     return;
   }
   if (selected.type === 'state') {
@@ -1064,7 +1359,7 @@ function updateSidebar() {
       <div class="sidebar-label">Estado</div>
       <div class="field-group">
         <label class="field-label">Nome</label>
-        <input class="field-input" id="state-name-input" value="${s.label}" maxlength="10" spellcheck="false">
+        <input class="field-input" id="state-name-input" value="${s.label}" maxlength="24" spellcheck="false">
       </div>
       <div class="toggle-row"><span>Estado final</span>
         <label class="toggle"><input type="checkbox" id="tog-final" ${s.isFinal?'checked':''}><span class="toggle-slider"></span></label>
@@ -1076,9 +1371,16 @@ function updateSidebar() {
         ${s.id===initialState?'<span class="badge purple">→ inicial</span>':''}
         ${s.isFinal?'<span class="badge green">final</span>':''}
       </div>`;
-    document.getElementById('state-name-input').addEventListener('input', e => { s.label = e.target.value||('q'+s.id); render(); });
-    document.getElementById('tog-final').addEventListener('change', e => { s.isFinal = e.target.checked; updateSidebar(); updateStats(); render(); });
-    document.getElementById('tog-init').addEventListener('change',  e => { initialState = e.target.checked ? s.id : null; updateSidebar(); updateStats(); render(); });
+    // Renomear: um único ponto de desfazer por edição (capturado ao focar o campo)
+    const nameInput = document.getElementById('state-name-input');
+    let snapBeforeRename = null;
+    nameInput.addEventListener('focus', () => { snapBeforeRename = snapshot(); });
+    nameInput.addEventListener('input', e => {
+      if (snapBeforeRename) { checkpoint(snapBeforeRename); snapBeforeRename = null; }
+      s.label = e.target.value||('q'+s.id); render();
+    });
+    document.getElementById('tog-final').addEventListener('change', e => { checkpoint(); s.isFinal = e.target.checked; updateSidebar(); updateStats(); render(); });
+    document.getElementById('tog-init').addEventListener('change',  e => { checkpoint(); initialState = e.target.checked ? s.id : null; updateSidebar(); updateStats(); render(); });
   } else if (selected.type === 'transition') {
     const t = transitions.get(selected.id);
     if (!t) { el.innerHTML = ''; return; }
@@ -1092,6 +1394,7 @@ function updateSidebar() {
       </div>
       <div class="sym-hint" style="font-size:11px;color:var(--text-muted)">Use ε para transição vazia</div>`;
     document.getElementById('trans-sym-input').addEventListener('change', e => {
+      checkpoint();
       t.symbols = new Set(e.target.value.split(',').map(s=>s.trim()).filter(Boolean));
       updateStats(); render();
     });
@@ -1101,55 +1404,21 @@ function updateSidebar() {
 function updateStats() {
   document.getElementById('stat-states').textContent = states.size;
   document.getElementById('stat-trans').textContent  = transitions.size;
-  const alphabet = new Set();
-  let isNFA = false;
-  const seen = new Map();
-  for (const t of transitions.values()) {
-    for (const sym of t.symbols) {
-      if (sym === 'ε') isNFA = true; else alphabet.add(sym);
-      const k = `${t.from}__${sym}`;
-      seen.set(k, (seen.get(k)||0)+1);
-      if (seen.get(k) > 1) isNFA = true;
-    }
-  }
-  document.getElementById('stat-alphabet').textContent = alphabet.size ? [...alphabet].sort().join(', ') : '—';
+  const auto = currentModel();
+  const alphabet = Motor.alfabeto(auto);
+  const isNFA = Motor.ehAFN(auto);
+  document.getElementById('stat-alphabet').textContent = alphabet.length ? alphabet.join(', ') : '—';
   const tb = document.getElementById('stat-type');
   tb.textContent = isNFA ? 'AFN' : 'AFD';
   tb.className = 'type-badge' + (isNFA ? ' nfa' : '');
 }
 
-// ── Simulation ──
-function buildTMap() {
-  const map = new Map();
-  for (const s of states.keys()) map.set(s, new Map());
-  for (const t of transitions.values())
-    for (const sym of t.symbols) {
-      if (!map.get(t.from).has(sym)) map.get(t.from).set(sym, new Set());
-      map.get(t.from).get(sym).add(t.to);
-    }
-  return map;
-}
-function epsClosure(set, tmap) {
-  const r = new Set(set); const stk = [...set];
-  while (stk.length) { const s = stk.pop(); for (const n of (tmap.get(s)?.get('ε')||[])) if (!r.has(n)){r.add(n);stk.push(n);} }
-  return r;
+//    Simulation (lógica em motor.js)   
+function currentModel() {
+  return { states: [...states.values()], transitions: [...transitions.values()], initial: initialState };
 }
 function simulate(input) {
-  if (initialState === null) return null;
-  const tmap = buildTMap();
-  const steps = [];
-  let cur = epsClosure(new Set([initialState]), tmap);
-  steps.push({ activeStates: new Set(cur), symbol: null, usedTransition: null, stepIdx: 0 });
-  for (let i = 0; i < input.length; i++) {
-    const sym = input[i];
-    const nxt = new Set();
-    let usedTrans = null;
-    for (const sid of cur) for (const d of (tmap.get(sid)?.get(sym)||[])) nxt.add(d);
-    for (const t of transitions.values()) if (cur.has(t.from) && t.symbols.has(sym)) { usedTrans = t.id; break; }
-    cur = epsClosure(nxt, tmap);
-    steps.push({ activeStates: new Set(cur), symbol: sym, usedTransition: usedTrans, stepIdx: i+1 });
-  }
-  return { steps, accepted: [...cur].some(id => states.get(id)?.isFinal), input };
+  return Motor.simular(currentModel(), input);
 }
 function runTest() {
   stopSim();
@@ -1162,6 +1431,8 @@ function runTest() {
   simSteps = res.steps; simStep = res.steps.length - 1; simActive = true; render();
   setTimeout(() => { simActive = false; render(); }, 2000);
 }
+
+// mostrar passo a passo 
 function startStepMode() {
   const res = simulate(document.getElementById('test-input').value);
   if (!res) { showToast('Defina um estado inicial primeiro.'); return; }
@@ -1171,7 +1442,9 @@ function stepForward() { if (simActive && simSteps && simStep < simSteps.length-
 function stepBack()    { if (simActive && simSteps && simStep > 0)                 { simStep--; updateStepUI(); render(); } }
 function updateStepUI() {
   if (!simSteps) return;
-  document.getElementById('step-indicator').textContent = `Passo ${simStep}/${simSteps.length-1}`;
+  const sym = simSteps[simStep].symbol;
+  document.getElementById('step-indicator').textContent =
+    `Passo ${simStep}/${simSteps.length-1}` + (sym !== null ? ` · lido '${sym}'` : '');
   const rd = document.getElementById('result-display');
   if (simStep === simSteps.length-1) {
     const acc = [...simSteps[simStep].activeStates].some(id => states.get(id)?.isFinal);
@@ -1182,18 +1455,20 @@ function updateStepUI() {
 }
 function stopSim() { simActive = false; simSteps = null; simStep = 0; document.getElementById('step-indicator').textContent = ''; }
 
-// ── UI controls ──
+// Controles de UI
 function setMode(m) {
   mode = m; connectFrom = null; previewWorldPos = null;
   document.getElementById('btn-select').classList.toggle('active', m==='select');
   document.getElementById('btn-connect').classList.toggle('active', m==='connect');
+  document.getElementById('btn-state').classList.toggle('active', m==='state');
   canvas.className = 'mode-' + m + (spaceDown ? ' panning' : '');
   render();
 }
 function clearAll() {
   if (!confirm('Limpar todo o autômato?')) return;
-  states.clear(); transitions.clear(); initialState = null; selected = null; connectFrom = null; stopSim();
-  updateSidebar(); updateStats(); render();
+  checkpoint();
+  states.clear(); transitions.clear(); initialState = null; connectFrom = null; stopSim();
+  clearSelection(); updateStats(); render();
 }
 let currentTheme = 'auto';
 function toggleTheme() {
@@ -1204,52 +1479,139 @@ function toggleTheme() {
   else root.setAttribute('data-theme', currentTheme);
   render();
 }
-function exportPython() {
-  const ids = [...states.keys()];
-  if (!ids.length) { showToast('Nenhum estado para exportar.'); return; }
-  const labels = id => `"${states.get(id).label}"`;
-  const alphabet = new Set();
-  for (const t of transitions.values()) for (const s of t.symbols) if (s!=='ε') alphabet.add(s);
-  const isNFA = [...transitions.values()].some(t=>t.symbols.has('ε')) ||
-    (() => { const seen=new Map(); for(const t of transitions.values()) for(const s of t.symbols){const k=`${t.from}_${s}`;if(seen.has(k))return true;seen.set(k,1);}return false; })();
-  let code = `from automato import ${isNFA?'AFN':'AFD'}\n\nautomato = ${isNFA?'AFN':'AFD'}(\n`;
-  code += `    estados={${ids.map(labels).join(', ')}},\n`;
-  code += `    alfabeto={${[...alphabet].sort().map(s=>`"${s}"`).join(', ')}},\n`;
-  code += `    estado_inicial="${initialState!==null?states.get(initialState).label:''}",\n`;
-  code += `    estados_finais={${ids.filter(id=>states.get(id).isFinal).map(labels).join(', ')}},\n)\n`;
-  for (const t of transitions.values()) {
-    const fl = states.get(t.from).label, tl = states.get(t.to).label;
-    for (const s of t.symbols) code += `automato.adicionar_transicao("${fl}", "${s}", "${tl}")\n`;
-  }
-  code += `\naceito, caminho = automato.processar("sua_string")\nprint("Aceito" if aceito else "Rejeitado")\n`;
-  navigator.clipboard.writeText(code).then(
-    () => showToast('Código Python copiado!'),
-    () => { const w = window.open('','_blank'); w.document.write('<pre style="padding:20px;font-family:monospace">'+code+'</pre>'); }
-  );
-}
-function showToast(msg) {
+
+let toastTimer = null;
+function showToast(msg, ms = 2500) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), ms);
 }
 
-// ── Init ──
+//    Substituir o autômato atual   
+// Estados sem x/y (gerados por conversão) são dispostos em colunas por profundidade BFS.
+function loadModel(model) {
+  stopSim();
+  states.clear(); transitions.clear();
+  checkpoint();
+  selected = null; selStates = new Set(); connectFrom = null;
+  nextStateId = 0; nextTransId = 0;
+
+  const columns = new Map();
+  for (const s of model.states) {
+    const d = s.depth ?? 0;
+    if (!columns.has(d)) columns.set(d, []);
+    columns.get(d).push(s);
+  }
+  const pos = new Map();
+  for (const [d, col] of columns)
+    col.forEach((s, i) => pos.set(s.id, {
+      x: Math.min(WORLD_W - 100, 200 + d * 190),
+      y: Math.max(80, Math.min(WORLD_H - 80, WORLD_H / 2 + (i - (col.length - 1) / 2) * 150)),
+    }));
+
+  const idMap = new Map();
+  for (const s of model.states) {
+    const id = nextStateId++;
+    idMap.set(s.id, id);
+    const p = (typeof s.x === 'number' && typeof s.y === 'number') ? s : pos.get(s.id);
+    states.set(id, { id, x: p.x, y: p.y, label: s.label, isFinal: !!s.isFinal });
+  }
+  initialState = model.initial !== null && model.initial !== undefined ? idMap.get(model.initial) : null;
+
+  for (const t of model.transitions) {
+    const nt = findOrCreateTransition(idMap.get(t.from), idMap.get(t.to));
+    for (const sym of t.symbols) nt.symbols.add(sym);
+    if (t.curve) nt.curve = t.curve;
+  }
+  updateSidebar(); updateStats(); fitView();
+}
+
+//    Salvar / abrir (.json)   
+// No executável usa o diálogo nativo (js_api do pywebview); no navegador, download/upload.
+let currentFileName = 'automato.json';
+
+async function salvarArquivo() {
+  const labels = [...states.values()].map(s => s.label);
+  const dup = labels.find((l, i) => labels.indexOf(l) !== i);
+  if (dup) { showToast(`Há dois estados chamados '${dup}'. Renomeie antes de salvar.`, 3500); return; }
+
+  const content = JSON.stringify(Motor.paraJSON(currentModel()), null, 2);
+  const api = window.pywebview?.api;
+  try {
+    if (api?.salvar_arquivo) {
+      const name = await api.salvar_arquivo(content, currentFileName);
+      if (name) { currentFileName = name; showToast(`Salvo em ${name}`); }
+    } else {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([content], { type: 'application/json' }));
+      a.download = currentFileName;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+  } catch (err) {
+    showToast('Erro ao salvar: ' + (err?.message || err), 4000);
+  }
+}
+
+async function abrirArquivo() {
+  const api = window.pywebview?.api;
+  if (api?.abrir_arquivo) {
+    try {
+      const res = await api.abrir_arquivo();
+      if (res) importarConteudo(res.conteudo, res.nome);
+    } catch (err) {
+      showToast('Erro ao abrir: ' + (err?.message || err), 4000);
+    }
+  } else {
+    document.getElementById('file-input').click();
+  }
+}
+
+document.getElementById('file-input').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  file.text().then(text => importarConteudo(text, file.name));
+  e.target.value = '';
+});
+
+function importarConteudo(text, name) {
+  try {
+    loadModel(Motor.deJSON(JSON.parse(text)));
+    currentFileName = name || currentFileName;
+    showToast(`Aberto: ${currentFileName}`);
+  } catch (err) {
+    showToast('Arquivo inválido: ' + err.message, 4000);
+  }
+}
+
+//    Conversão e minimização   
+function converterParaAFD() {
+  if (initialState === null) { showToast('Defina um estado inicial primeiro.'); return; }
+  const auto = currentModel();
+  if (!Motor.ehAFN(auto)) { showToast('O autômato já é determinístico (AFD).'); return; }
+  if (!confirm('Substituir o AFN atual pelo AFD equivalente?\nSalve antes se quiser manter o original.')) return;
+  const afd = Motor.paraAFD(auto);
+  loadModel(afd);
+  showToast(`AFD gerado com ${afd.states.length} estado${afd.states.length !== 1 ? 's' : ''}.`);
+}
+
+function minimizarAutomato() {
+  if (initialState === null) { showToast('Defina um estado inicial primeiro.'); return; }
+  const auto = currentModel();
+  const min = Motor.minimizar(auto);
+  const before = Motor.ehAFN(auto) ? Motor.paraAFD(auto).states.length : states.size;
+  if (!Motor.ehAFN(auto) && min.states.length === before) {
+    showToast('O AFD já é mínimo.'); return;
+  }
+  if (!confirm(`Substituir pelo AFD mínimo (${min.states.length} estado${min.states.length !== 1 ? 's' : ''})?\nSalve antes se quiser manter o original.`)) return;
+  loadModel(min);
+  showToast(`AFD mínimo: ${min.states.length} estado${min.states.length !== 1 ? 's' : ''}.`);
+}
+
+// Init
 const ro = new ResizeObserver(resizeCanvas);
 ro.observe(canvas);
 resizeCanvas();
-updateStats();
-
-(function seed() {
-  const r = canvas.getBoundingClientRect();
-  const cx = (r.width/2 - panX)/zoom, cy = (r.height/2 - panY)/zoom;
-  const s0 = addState(cx-120, cy), s1 = addState(cx+20, cy), s2 = addState(cx+160, cy);
-  s2.isFinal = true; selected = null;
-  const t1 = findOrCreateTransition(s0.id,s1.id); t1.symbols.add('a');
-  const t2 = findOrCreateTransition(s1.id,s2.id); t2.symbols.add('b');
-  const t3 = findOrCreateTransition(s0.id,s0.id); t3.symbols.add('b');
-  const t4 = findOrCreateTransition(s1.id,s1.id); t4.symbols.add('a');
-  const t5 = findOrCreateTransition(s2.id,s1.id); t5.symbols.add('a');
-  const t6 = findOrCreateTransition(s2.id,s0.id); t6.symbols.add('b');
-  updateSidebar(); updateStats(); render();
-})();
+updateSidebar(); updateStats(); render();
 </script>
